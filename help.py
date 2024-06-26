@@ -6,7 +6,7 @@ import platform
 import requests
 from colorama import Fore,Style
 
-db_path = "C:\Temp\commands.db"
+db_path = r"C:\Temp\commands.db"
 '''
 with open(db_path,"w") as file:
     file.write()
@@ -34,7 +34,7 @@ if platform.uname().system == "Linux":
                         print(err.decode())
                         if "is not recognized" in err:
                             print(Fore.LIGHTYELLOW_EX + f"You can download it from https://serverip/{user}\n")
-                            agreement = input('Do you wnat to download this tool into your system:(Y\/N)')
+                            agreement = input(r'Do you wnat to download this tool into your system:(Y\N)')
 
                             if user.lower() == "Y" or "user".lower():
                                 download_tool(f"{user}")

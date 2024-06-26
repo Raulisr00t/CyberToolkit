@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGr
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 
+# don't worry it is not malware just i download my background)
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home

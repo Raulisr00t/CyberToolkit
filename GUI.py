@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGr
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
-#dont worry it is not malware it's for download background the desktop app
+#don't worry it's not malware it is for download app background)
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
@@ -128,7 +128,7 @@ class Window(QMainWindow):
 
         team_label_widget = QLabel(team_label, tool_widget)
         team_label_widget.setAlignment(Qt.AlignLeft)
-        team_label_widget.setStyleSheet("font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        team_label_widget.setStyleSheet("font-size: 34px; font-weight: bold; margin-bottom: 20px;")
         header_layout.addWidget(team_label_widget)
 
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -167,7 +167,7 @@ class Window(QMainWindow):
             grid_label = QLabel(label_text, section_widget)
             grid_label.setAlignment(Qt.AlignCenter)
             grid_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            grid_label.setStyleSheet("border: 1px solid black; background-color: white;")
+            grid_label.setStyleSheet("border: 1px solid black; background-color: white; font-size: 18px;")
             grid_label.mousePressEvent = self.create_handler(label_text)
             grid_layout.addWidget(grid_label, row, col)
         
@@ -177,7 +177,7 @@ class Window(QMainWindow):
             grid_label = QLabel("", section_widget)
             grid_label.setAlignment(Qt.AlignCenter)
             grid_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            grid_label.setStyleSheet("border: 1px solid black; background-color: white;")
+            grid_label.setStyleSheet("border: 1px solid black; background-color: white; font-size: 18px;")
             grid_layout.addWidget(grid_label, row, col)
 
         return section_widget

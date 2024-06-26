@@ -14,7 +14,7 @@ file.close()
 '''
 if platform.uname().system == "Linux":
     def download_tool(tool_name):
-        url = "http://192.168.1.64"
+        url = "http://192.168.1.1" #writev your server_ip for tool downloading
         response = requests.get(url=url,allow_redirects=True)
         if response.status_code < 400:
             print("Tool Downloaded!")

@@ -2,7 +2,7 @@ import sys
 import os
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QColor, QPalette, QFont
 from PyQt5.QtCore import Qt
 
 class Window(QMainWindow):
@@ -33,22 +33,22 @@ class Window(QMainWindow):
         initial_widget = QWidget(self)
         initial_layout = QVBoxLayout(initial_widget)
 
-        title_label = QLabel("Choice Your Team", initial_widget)
+        title_label = QLabel("Choose Your Team", initial_widget)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        title_label.setStyleSheet("font-size: 32px; font-weight: bold; margin-bottom: 20px;")
         initial_layout.addWidget(title_label)
 
         button_layout = QGridLayout()
         button_layout.setSpacing(20)
 
         red_button = QPushButton("RED", initial_widget)
-        red_button.setStyleSheet("background-color: red; color: white; font-size: 28px; padding: 28px;")
+        red_button.setStyleSheet("background-color: red; color: white; font-size: 40px; padding: 40px;")
         red_button.setFixedSize(600, 600)
         red_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         red_button.clicked.connect(self.show_red_team_tools)
 
         blue_button = QPushButton("BLUE", initial_widget)
-        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 28px; padding: 28px;")
+        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 40px; padding: 40px;")
         blue_button.setFixedSize(600, 600)
         blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         blue_button.clicked.connect(self.show_blue_team_tools)

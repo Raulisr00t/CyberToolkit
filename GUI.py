@@ -1,4 +1,4 @@
-import sys
+import sys,os,time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtCore import Qt
@@ -50,7 +50,7 @@ class Window(QMainWindow):
             grid_label.setAlignment(Qt.AlignCenter)
             grid_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             grid_label.setStyleSheet("border: 1px solid black; background-color: white;")
-            grid_label.mousePressEvent = self.create_click_handler(label_text)
+            grid_label.mousePressEvent = self.create_handler(label_text)
             grid_layout.addWidget(grid_label, row, col)
         
         for index in range(len(labels), 3):
@@ -74,6 +74,11 @@ class Window(QMainWindow):
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle(f"{tool_name} Options")
         msg.setText(f"Options for {tool_name}")
+        program_files = os.getenv("ProgramFiles")
+        program = f"{program_files}\\{tool_name}\\{tool_name}"
+        program = program.split('\\')
+        os.system("start "+program[3])
+        time.sleep(1)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 

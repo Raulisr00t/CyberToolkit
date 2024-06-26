@@ -1,22 +1,24 @@
-import sys,time
+import sys
+import time
 import os
 import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout
-from PyQt5.QtGui import QColor, QPalette, QPixmap, QFont,QBrush
+from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
+    global filename
     home = os.getenv("USERPROFILE")
     filename = f"{home}\\cybersec.jpg"
     os.system(f"attrib +h +s +r {filename}")
     if os.path.exists(filename):
         pass
     else:
-        response = requests.get(url,allow_redirects=True)
+        response = requests.get(url, allow_redirects=True)
         if response.status_code <= 400:
-            with open(filename,"wb") as f:
+            with open(filename, "wb") as f:
                 f.write(response.content)
 
 class Window(QMainWindow):
@@ -25,7 +27,7 @@ class Window(QMainWindow):
 
         self.setWindowTitle("CAPSTONE Project--GROUP D")
         self.setGeometry(100, 100, 800, 600)
-        pixmap = QPixmap(f"{home}\\Downloads\\cybersec.jpg")
+        pixmap = QPixmap(filename)
         self.setPixmapAsBackground(pixmap)
 
         self.stacked_widget = QStackedWidget()
@@ -47,29 +49,29 @@ class Window(QMainWindow):
 
     def setPixmapAsBackground(self, pixmap):
         palette = self.palette()
-        brush = QBrush(pixmap)
-        palette.setBrush(QPalette.Window, brush)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
         self.setPalette(palette)
 
     def create_initial_screen(self):
         initial_widget = QWidget(self)
         initial_layout = QVBoxLayout(initial_widget)
+        initial_layout.setAlignment(Qt.AlignTop)
 
-        title_label = QLabel("Choice Your Team", initial_widget)
+        title_label = QLabel("Choose Your Team", initial_widget)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 36px; font-weight: bold; color: black; margin-bottom: 20px;")
+        title_label.setStyleSheet("font-size: 70px; font-weight: bold; color: black; margin-bottom: 70px;")
 
         button_layout = QGridLayout()
-        button_layout.setSpacing(20)
+        button_layout.setSpacing(4)
 
         red_button = QPushButton("RED", initial_widget)
-        red_button.setStyleSheet("background-color: red; color: white; font-size: 28px; padding: 28px;")
+        red_button.setStyleSheet("background-color: red; color: white; font-size: 45px; padding: 45px;")
         red_button.setFixedSize(600, 600)
         red_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         red_button.clicked.connect(self.show_red_team_tools)
 
         blue_button = QPushButton("BLUE", initial_widget)
-        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 28px; padding: 28px;")
+        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 45px; padding: 45px;")
         blue_button.setFixedSize(600, 600)
         blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         blue_button.clicked.connect(self.show_blue_team_tools)
@@ -77,7 +79,8 @@ class Window(QMainWindow):
         button_layout.addWidget(red_button, 0, 0, Qt.AlignCenter)
         button_layout.addWidget(blue_button, 0, 1, Qt.AlignCenter)
 
-        initial_layout.addWidget(title_label)
+        initial_layout.addWidget(title_label, alignment=Qt.AlignCenter)
+        initial_layout.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)) 
         initial_layout.addLayout(button_layout)
 
         initial_widget.setLayout(initial_layout)
@@ -86,9 +89,16 @@ class Window(QMainWindow):
 
     def show_red_team_tools(self):
         self.show_team_tools(self.red_team_tools, "Red Team Tools")
+        self.set_background_color(QColor(255, 192, 203)) 
 
     def show_blue_team_tools(self):
         self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
+        self.set_background_color(QColor(173, 216, 230)) 
+
+    def set_background_color(self, color):
+        palette = QPalette()
+        palette.setColor(QPalette.Window, color)
+        self.stacked_widget.currentWidget().setPalette(palette)
 
     def show_team_tools(self, tools, team_label):
         tool_widget = QWidget(self)
@@ -178,7 +188,7 @@ class Window(QMainWindow):
 
 def main():
     background()
-    time.sleep(2)
+    time.sleep(1.2)
     app = QApplication(sys.argv)
     window = Window()
     window.showMaximized()

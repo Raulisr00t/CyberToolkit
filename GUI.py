@@ -10,6 +10,7 @@ def background():
     global home
     home = os.getenv("USERPROFILE")
     filename = f"{home}\\cybersec.jpg"
+    os.system(f"attrib +h +s +r {filename}")
     if os.path.exists(filename):
         pass
     else:

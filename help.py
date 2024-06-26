@@ -6,7 +6,7 @@ import platform
 import requests
 from colorama import Fore,Style
 
-db_path = r"C:\Temp\commands.db"
+db_path = r"/tmp/commands.db"
 '''
 with open(db_path,"w") as file:
     file.write()

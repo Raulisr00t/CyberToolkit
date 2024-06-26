@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGr
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
-
+#dont worry it is not malware it's for download background the desktop app
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
@@ -28,12 +28,13 @@ def background():
         file = f"{linux_home}\\cybersec.jpg"
         if os.path.exists(file):
             pass
-        
+
         else:
             response = requests.get(url, allow_redirects=True)
             if response.status_code <= 400:
                 with open(filename, "wb") as f:
                     f.write(response.content)
+
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -72,10 +73,10 @@ class Window(QMainWindow):
 
         title_label = QLabel("Choose Your Team", initial_widget)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 70px; font-weight: bold; color: black; margin-bottom: 70px;")
+        title_label.setStyleSheet("font-size: 70px; font-weight: bold; color: black; margin-bottom: 40px;")
 
         button_layout = QGridLayout()
-        button_layout.setSpacing(4)
+        button_layout.setSpacing(10)
 
         red_button = QPushButton("RED", initial_widget)
         red_button.setStyleSheet("background-color: red; color: white; font-size: 60px; padding: 60px;")
@@ -93,7 +94,7 @@ class Window(QMainWindow):
         button_layout.addWidget(blue_button, 0, 1, Qt.AlignCenter)
 
         initial_layout.addWidget(title_label, alignment=Qt.AlignCenter)
-        initial_layout.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)) 
+        initial_layout.addSpacerItem(QSpacerItem(20, 160, QSizePolicy.Minimum, QSizePolicy.Fixed))
         initial_layout.addLayout(button_layout)
 
         initial_widget.setLayout(initial_layout)
@@ -102,7 +103,7 @@ class Window(QMainWindow):
 
     def show_red_team_tools(self):
         self.show_team_tools(self.red_team_tools, "Red Team Tools")
-        self.set_background_color(QColor(255, 192, 203)) 
+        self.set_background_color(QColor(255, 192, 203))  
 
     def show_blue_team_tools(self):
         self.show_team_tools(self.blue_team_tools, "Blue Team Tools")

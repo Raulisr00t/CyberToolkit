@@ -1,5 +1,7 @@
-import sys,os,time
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox
+import sys
+import os
+import time
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtCore import Qt
 
@@ -10,28 +12,105 @@ class Window(QMainWindow):
         self.setWindowTitle("CAPSTONE Project--GROUP D")
         self.setGeometry(100, 100, 800, 600)
 
-        widget = QWidget(self)
-        self.setCentralWidget(widget)
+        self.stacked_widget = QStackedWidget()
+        self.setCentralWidget(self.stacked_widget)
 
-        palette = QPalette()
-        palette.setColor(QPalette.Window, QColor(173, 216, 230))  
-        widget.setPalette(palette)
-        widget.setAutoFillBackground(True)
+        self.create_initial_screen()
 
-        main_layout = QVBoxLayout(widget)
-
-        sections = [
+        self.red_team_tools = [
             ["Nmap", "Hydra", "Gobuster"],
             ["Wpscan", "Enum4linux", "Searchsploit"],
             ["Msfvenom", "Curl", "Python3"],
-            ["Havoc", "Sherloc", "Osintagram"],
+            ["Havoc", "Sherloc", "Osintagram"]
+        ]
+
+        self.blue_team_tools = [
             ["Feroxbuster", "Wireshark", "Visual Studio Code"],
             ["Visual Studio", "Bettercap", "Responder"]
         ]
 
-        for i, section_labels in enumerate(sections):
+    def create_initial_screen(self):
+        initial_widget = QWidget(self)
+        initial_layout = QVBoxLayout(initial_widget)
+
+        title_label = QLabel("Choice Your Team", initial_widget)
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        initial_layout.addWidget(title_label)
+
+        button_layout = QGridLayout()
+        button_layout.setSpacing(20)
+
+        red_button = QPushButton("RED", initial_widget)
+        red_button.setStyleSheet("background-color: red; color: white; font-size: 28px; padding: 28px;")
+        red_button.setFixedSize(600, 600)
+        red_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        red_button.clicked.connect(self.show_red_team_tools)
+
+        blue_button = QPushButton("BLUE", initial_widget)
+        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 28px; padding: 28px;")
+        blue_button.setFixedSize(600, 600)
+        blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        blue_button.clicked.connect(self.show_blue_team_tools)
+
+        button_layout.addWidget(red_button, 0, 0, Qt.AlignCenter)
+        button_layout.addWidget(blue_button, 0, 1, Qt.AlignCenter)
+
+        initial_layout.addSpacerItem(QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        initial_layout.addLayout(button_layout)
+        initial_layout.addSpacerItem(QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        initial_widget.setLayout(initial_layout)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(211, 211, 211))  # Light gray color
+        initial_widget.setPalette(palette)
+        initial_widget.setAutoFillBackground(True)
+
+        self.stacked_widget.addWidget(initial_widget)
+        self.stacked_widget.setCurrentWidget(initial_widget)
+
+    def show_red_team_tools(self):
+        self.show_team_tools(self.red_team_tools, "Red Team Tools")
+
+    def show_blue_team_tools(self):
+        self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
+
+    def show_team_tools(self, tools, team_label):
+        tool_widget = QWidget(self)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(173, 216, 230))
+        tool_widget.setPalette(palette)
+        tool_widget.setAutoFillBackground(True)
+
+        main_layout = QVBoxLayout(tool_widget)
+
+        header_layout = QHBoxLayout()
+        main_layout.addLayout(header_layout)
+
+        team_label_widget = QLabel(team_label, tool_widget)
+        team_label_widget.setAlignment(Qt.AlignLeft)
+        team_label_widget.setStyleSheet("font-size: 24px; font-weight: bold; margin-bottom: 20px;")
+        header_layout.addWidget(team_label_widget)
+
+        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        header_layout.addSpacerItem(spacer)
+
+        return_button = QPushButton("Return to Choice", tool_widget)
+        return_button.setStyleSheet("font-size: 16px; padding: 10px 20px;")
+        return_button.setFixedSize(200, 50)
+        return_button.clicked.connect(self.return_to_choice)
+        header_layout.addWidget(return_button)
+
+        for i, section_labels in enumerate(tools):
             section = self.create_section(f"Section {i + 1}", section_labels)
             main_layout.addWidget(section)
+
+        tool_widget.setLayout(main_layout)
+        self.stacked_widget.addWidget(tool_widget)
+        self.stacked_widget.setCurrentWidget(tool_widget)
+
+    def return_to_choice(self):
+        self.stacked_widget.setCurrentIndex(0)
 
     def create_section(self, title, labels):
         section_widget = QWidget()

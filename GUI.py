@@ -2,17 +2,17 @@ import sys
 import time
 import os
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog, QTextEdit
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
-#don't worry it's not malware it is for download app background)
+#dont't worry it's not malware it is just download app background)
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
     global filename
-    home = os.getenv("USERPROFILE")
     if platform.uname().system.lower() == "windows":
+        home = os.getenv("USERPROFILE")
         filename = f"{home}\\cybersec.jpg"
         os.system(f"attrib +h +s +r {filename}")
 
@@ -28,7 +28,6 @@ def background():
         file = f"{linux_home}\\cybersec.jpg"
         if os.path.exists(file):
             pass
-
         else:
             response = requests.get(url, allow_redirects=True)
             if response.status_code <= 400:
@@ -188,18 +187,46 @@ class Window(QMainWindow):
         return handler
 
     def show_tool_options(self, tool_name):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle(f"{tool_name} Options")
-        msg.setText(f"Options for {tool_name}")
+        if tool_name == "Nmap":
+            self.show_nmap_options()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle(f"{tool_name} Options")
+            msg.setText(f"Options for {tool_name}")
 
-        program_files = os.getenv("ProgramFiles")
-        program = f"{program_files}\\{tool_name}\\{tool_name}"
-        program = program.split('\\')
-        os.system("start "+program[3])
-        time.sleep(1)
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+            program_files = os.getenv("ProgramFiles")
+            program = f"{program_files}\\{tool_name}\\{tool_name}"
+            program = program.split('\\')
+            os.system("start " + program[3])
+            time.sleep(1)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+
+    def show_nmap_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Nmap Options")
+        dialog.setGeometry(100, 100, 600, 500)  # Size similar to PuTTY
+
+        layout = QVBoxLayout(dialog)
+
+        text_area = QTextEdit(dialog)
+        text_area.setText(
+            "Nmap Options:\n"
+            "1. Scan a single IP: nmap <IP address>\n"
+            "2. Scan a range of IPs: nmap <IP range>\n"
+            "3. Scan an entire subnet: nmap <subnet>\n"
+            "4. Scan a list of IPs: nmap -iL <list.txt>\n"
+            "5. Perform a ping scan only: nmap -sn <target>\n"
+            "6. Perform a TCP SYN scan: nmap -sS <target>\n"
+            "7. Detect OS and services: nmap -A <target>\n"
+            "8. Save output to file: nmap -oN <outputfile.txt> <target>\n"
+        )
+        
+        text_area.setReadOnly(True)
+        layout.addWidget(text_area)
+
+        dialog.exec_()
 
 def main():
     background()

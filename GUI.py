@@ -2,11 +2,12 @@ import sys
 import time
 import os
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog, QTextEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog, QLineEdit, QComboBox, QCheckBox, QTextEdit
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
-#dont't worry it's not malware it is just download app background)
+import subprocess
+
 def background():
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
@@ -25,9 +26,10 @@ def background():
                     f.write(response.content)
     else:
         linux_home = os.getenv("HOME")
-        file = f"{linux_home}\\cybersec.jpg"
+        file = f"{linux_home}/cybersec.jpg"
         if os.path.exists(file):
             pass
+
         else:
             response = requests.get(url, allow_redirects=True)
             if response.status_code <= 400:
@@ -102,11 +104,11 @@ class Window(QMainWindow):
 
     def show_red_team_tools(self):
         self.show_team_tools(self.red_team_tools, "Red Team Tools")
-        self.set_background_color(QColor(255, 192, 203))  
+        self.set_background_color(QColor(255, 192, 203))
 
     def show_blue_team_tools(self):
         self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
-        self.set_background_color(QColor(173, 216, 230))  
+        self.set_background_color(QColor(173, 216, 230))
 
     def set_background_color(self, color):
         palette = QPalette()
@@ -183,48 +185,92 @@ class Window(QMainWindow):
 
     def create_handler(self, label_text):
         def handler(event):
-            self.show_tool_options(label_text)
+            if label_text == "Nmap":
+                self.show_nmap_options()
+            else:
+                self.show_tool_options(label_text)
         return handler
 
     def show_tool_options(self, tool_name):
-        if tool_name == "Nmap":
-            self.show_nmap_options()
-        else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setWindowTitle(f"{tool_name} Options")
-            msg.setText(f"Options for {tool_name}")
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(f"{tool_name} Options")
+        msg.setText(f"Options for {tool_name}")
 
-            program_files = os.getenv("ProgramFiles")
-            program = f"{program_files}\\{tool_name}\\{tool_name}"
-            program = program.split('\\')
-            os.system("start " + program[3])
-            time.sleep(1)
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+        program_files = os.getenv("ProgramFiles")
+        program = f"{program_files}\\{tool_name}\\{tool_name}"
+        program = program.split('\\')
+        os.system("start "+program[3])
+        time.sleep(1)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
     def show_nmap_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Nmap Options")
-        dialog.setGeometry(100, 100, 600, 500)  # Size similar to PuTTY
+        dialog.setGeometry(100, 100, 600, 500)
 
         layout = QVBoxLayout(dialog)
 
-        text_area = QTextEdit(dialog)
-        text_area.setText(
-            "Nmap Options:\n"
-            "1. Scan a single IP: nmap <IP address>\n"
-            "2. Scan a range of IPs: nmap <IP range>\n"
-            "3. Scan an entire subnet: nmap <subnet>\n"
-            "4. Scan a list of IPs: nmap -iL <list.txt>\n"
-            "5. Perform a ping scan only: nmap -sn <target>\n"
-            "6. Perform a TCP SYN scan: nmap -sS <target>\n"
-            "7. Detect OS and services: nmap -A <target>\n"
-            "8. Save output to file: nmap -oN <outputfile.txt> <target>\n"
-        )
-        
-        text_area.setReadOnly(True)
-        layout.addWidget(text_area)
+        url_layout = QHBoxLayout()
+        url_label = QLabel("URL:", dialog)
+        url_input = QLineEdit(dialog)
+        url_layout.addWidget(url_label)
+        url_layout.addWidget(url_input)
+        layout.addLayout(url_layout)
+
+        thread_count_layout = QHBoxLayout()
+        thread_count_label = QLabel("Thread Count:", dialog)
+        thread_count_input = QLineEdit(dialog)
+        thread_count_layout.addWidget(thread_count_label)
+        thread_count_layout.addWidget(thread_count_input)
+        layout.addLayout(thread_count_layout)
+
+        ip_address_layout = QHBoxLayout()
+        ip_address_label = QLabel("IP Address:", dialog)
+        ip_address_input = QLineEdit(dialog)
+        ip_address_layout.addWidget(ip_address_label)
+        ip_address_layout.addWidget(ip_address_input)
+        layout.addLayout(ip_address_layout)
+
+        scan_type_layout = QHBoxLayout()
+        scan_type_label = QLabel("Scan Type:", dialog)
+        scan_type_combo = QComboBox(dialog)
+        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Service Version Detection (-sV)", "OS Detection (-O)", "Aggressive Scan (-A)"])
+        scan_type_layout.addWidget(scan_type_label)
+        scan_type_layout.addWidget(scan_type_combo)
+        layout.addLayout(scan_type_layout)
+
+        version_scan_layout = QHBoxLayout()
+        version_scan_label = QLabel("Version Scan:", dialog)
+        version_scan_yes = QCheckBox("Yes", dialog)
+        version_scan_layout.addWidget(version_scan_label)
+        version_scan_layout.addWidget(version_scan_yes)
+        layout.addLayout(version_scan_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command():
+            url = url_input.text()
+            thread_count = thread_count_input.text()
+            ip_address = ip_address_input.text()
+            scan_type = scan_type_combo.currentText()
+            version_scan = "-sV" if version_scan_yes.isChecked() else ""
+            command = f"nmap {url} {ip_address} {scan_type} {version_scan} --min-rate={thread_count}"
+            output_area.setText(command)
+
+        def run_nmap():
+            command = generate_command()
+            answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(run_nmap)
+        layout.addWidget(generate_button)
 
         dialog.exec_()
 

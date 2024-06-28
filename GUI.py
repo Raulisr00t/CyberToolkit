@@ -2,7 +2,11 @@ import sys
 import time
 import os
 import requests
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy, QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog, QLineEdit, QComboBox, QCheckBox, QTextEdit
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy,
+    QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog,
+    QLineEdit, QComboBox, QCheckBox, QTextEdit
+)
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
@@ -26,8 +30,8 @@ def background():
                     f.write(response.content)
     else:
         linux_home = os.getenv("HOME")
-        file = f"{linux_home}/cybersec.jpg"
-        if os.path.exists(file):
+        filename = f"{linux_home}/cybersec.jpg"
+        if os.path.exists(filename):
             pass
 
         else:
@@ -62,6 +66,10 @@ class Window(QMainWindow):
             ["Visual Studio", "Bettercap", "Responder"]
         ]
 
+        self.general_team_tools = [
+            ["SSH Connection", "FTP Connection", "RDP Connection"]
+        ]
+
     def setPixmapAsBackground(self, pixmap):
         palette = self.palette()
         palette.setBrush(QPalette.Window, QBrush(pixmap))
@@ -91,8 +99,15 @@ class Window(QMainWindow):
         blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         blue_button.clicked.connect(self.show_blue_team_tools)
 
+        general_button = QPushButton("General Tools", initial_widget)
+        general_button.setStyleSheet("background-color: gray; color: white; font-size: 60px; padding: 60px;")
+        general_button.setFixedSize(520, 520)
+        general_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        general_button.clicked.connect(self.show_general_tools)
+
         button_layout.addWidget(red_button, 0, 0, Qt.AlignCenter)
         button_layout.addWidget(blue_button, 0, 1, Qt.AlignCenter)
+        button_layout.addWidget(general_button, 1, 0, 1, 2, Qt.AlignCenter)
 
         initial_layout.addWidget(title_label, alignment=Qt.AlignCenter)
         initial_layout.addSpacerItem(QSpacerItem(20, 160, QSizePolicy.Minimum, QSizePolicy.Fixed))
@@ -108,6 +123,10 @@ class Window(QMainWindow):
 
     def show_blue_team_tools(self):
         self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
+        self.set_background_color(QColor(173, 216, 230))
+
+    def show_general_tools(self):
+        self.show_team_tools(self.general_team_tools, "General Tools")
         self.set_background_color(QColor(173, 216, 230))
 
     def set_background_color(self, color):
@@ -162,6 +181,10 @@ class Window(QMainWindow):
         grid_layout = QGridLayout()
         section_layout.addLayout(grid_layout)
 
+        num_labels = len(labels)
+        rows = (num_labels - 1) // 4 + 1
+        cols = min(4, num_labels)
+
         for index, label_text in enumerate(labels):
             row = index // 4
             col = index % 4
@@ -172,7 +195,7 @@ class Window(QMainWindow):
             grid_label.mousePressEvent = self.create_handler(label_text)
             grid_layout.addWidget(grid_label, row, col)
         
-        for index in range(len(labels), 3):
+        for index in range(num_labels, rows * 3):
             row = index // 4
             col = index % 4
             grid_label = QLabel("", section_widget)
@@ -181,6 +204,7 @@ class Window(QMainWindow):
             grid_label.setStyleSheet("border: 1px solid black; background-color: white; font-size: 18px;")
             grid_layout.addWidget(grid_label, row, col)
 
+        section_widget.setLayout(section_layout)
         return section_widget
 
     def create_handler(self, label_text):
@@ -203,7 +227,7 @@ class Window(QMainWindow):
         os.system("start "+program[3])
         time.sleep(1)
         msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        msg.exec()
 
     def show_nmap_options(self):
         dialog = QDialog(self)
@@ -301,6 +325,26 @@ class Window(QMainWindow):
         wordlist_layout.addWidget(wordlist_label)
         wordlist_layout.addWidget(wordlist_input)
         layout.addLayout(wordlist_layout)
+
+        def generate_command_gobuster():
+            url = url_input.text()
+            thread_count = thread_count_input.text()
+            wordlist = wordlist_input.text()
+            command = f"gobuster dir -u {url} -w {wordlist} -t {thread_count}"
+            return command
+
+        def run_gobuster():
+            command = generate_command_gobuster()
+            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                result.append("\n" + result)
+        
+        generate_button = QPushButton("Start Gobuster", dialog)
+        generate_button.clicked.connect(run_gobuster)
+        layout.addWidget(generate_button)
+
+        dialog.exec_()
 
 def main():
     background()

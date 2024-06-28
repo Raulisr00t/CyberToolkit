@@ -252,7 +252,7 @@ class Window(QMainWindow):
         output_area.setReadOnly(True)
         layout.addWidget(output_area)
 
-        def generate_command():
+        def generate_command_nmap():
             url = url_input.text()
             thread_count = thread_count_input.text()
             ip_address = ip_address_input.text()
@@ -262,17 +262,45 @@ class Window(QMainWindow):
             output_area.setText(command)
 
         def run_nmap():
-            command = generate_command()
+            command = generate_command_nmap()
             answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
-
+        
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_nmap)
         layout.addWidget(generate_button)
 
         dialog.exec_()
+
+    def show_gobuster_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Gobuster Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        url_layout = QHBoxLayout()
+        url_label = QLabel("URL:", dialog)
+        url_input = QLineEdit(dialog)
+        url_layout.addWidget(url_label)
+        url_layout.addWidget(url_input)
+        layout.addLayout(url_layout)
+
+        thread_count_layout = QHBoxLayout()
+        thread_count_label = QLabel("Thread Count:", dialog)
+        thread_count_input = QLineEdit(dialog)
+        thread_count_layout.addWidget(thread_count_label)
+        thread_count_layout.addWidget(thread_count_input)
+        layout.addLayout(thread_count_layout)
+
+        wordlist_layout = QHBoxLayout()
+        wordlist_label = QLabel("Wordlist:", dialog)
+        wordlist_input = QLineEdit(dialog)
+        wordlist_layout.addWidget(wordlist_label)
+        wordlist_layout.addWidget(wordlist_input)
+        layout.addLayout(wordlist_layout)
 
 def main():
     background()

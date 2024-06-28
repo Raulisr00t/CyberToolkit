@@ -67,7 +67,8 @@ class Window(QMainWindow):
         ]
 
         self.general_team_tools = [
-            ["SSH Connection", "FTP Connection", "RDP Connection"]
+            ["SSH Connection", "FTP Connection", "RDP Connection"],
+            ["WinRM connection","NetCat connection","DNS LookUP"]
         ]
 
     def setPixmapAsBackground(self, pixmap):
@@ -127,7 +128,7 @@ class Window(QMainWindow):
 
     def show_general_tools(self):
         self.show_team_tools(self.general_team_tools, "General Tools")
-        self.set_background_color(QColor(173, 216, 230))
+        self.set_background_color(QColor(211, 211, 211))
 
     def set_background_color(self, color):
         palette = QPalette()

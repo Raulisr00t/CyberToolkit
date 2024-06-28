@@ -13,6 +13,7 @@ import platform
 import subprocess
 
 def background():
+    #dont worry it's not malware it is for download app's background))
     url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
     global home
     global filename

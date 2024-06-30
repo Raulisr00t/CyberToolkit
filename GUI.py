@@ -228,15 +228,23 @@ class Window(QMainWindow):
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle(f"{tool_name} Options")
         msg.setText(f"Options for {tool_name}")
-
-        program_files = os.getenv("ProgramFiles")
-        program = f"{program_files}\\{tool_name}\\{tool_name}"
-        program = program.split('\\')
-        os.system("start "+program[3])
-        time.sleep(1)
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec()
-
+        if platform.uname().system.lower() == "windows":
+            program_files = os.getenv("ProgramFiles")
+            program = f"{program_files}\\{tool_name}\\{tool_name}"
+            program = program.split('\\')
+            if os.path.exists(program)
+                os.system("start "+program[3])
+                time.sleep(1)
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec()
+            else:
+                pass #for now 
+        else:
+            programs_path = "/usr/bin/"
+            if os.path.exists(programs_path + tool_name):
+                os.system(tool_name)
+            else:
+                pass #for now
     def show_nmap_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Nmap Options")
@@ -354,7 +362,7 @@ class Window(QMainWindow):
             layout.addWidget(generate_button)
 
             dialog.exec_()
-            
+    
         else:
             QMessageBox.warning("Your wordlist path is incorrect,Please check again")
 

@@ -225,7 +225,7 @@ class Window(QMainWindow):
                 self.show_ncat_options()
             if label_text == "Gobuster":
                 self.show_gobuster_options()
-            if label_text == "SearchSploit":
+            if label_text == "Searchsploit":
                 self.show_searchsploit_options()
             if label_text == "SSH Connection":
                 self.show_ssh_options()
@@ -486,13 +486,15 @@ class Window(QMainWindow):
         layout.addWidget(output_area)
 
         def generate_command_search():
+            global cve
             cve = cve_input.text()
             searchsploit = f"searchsploit {cve}"
             return searchsploit
 
         def run_search():
             command = generate_command_search()
-            detailed = detailed_scan_yes.isChecked()
+            detailed = "-w" if detailed_scan_yes.isChecked() else ""
+            searchsploit = f"searchsploit {cve} {detailed}"
 
             if detailed:
                 url = "https://vulmon.com"
@@ -540,11 +542,12 @@ class Window(QMainWindow):
             else:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
-
+            return searchsploit
+        
         generate_button = QPushButton("Run Search", searchsploit_dialog)
         generate_button.clicked.connect(run_search)
         layout.addWidget(generate_button)
-
+        searchsploit_dialog.setLayout(layout)
         searchsploit_dialog.exec_()
 
     def show_ssh_options(self):

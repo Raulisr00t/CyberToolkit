@@ -71,7 +71,7 @@ class Window(QMainWindow):
 
         self.general_team_tools = [
             ["SSH Connection", "FTP Connection", "RDP Connection"],
-            ["WinRM connection","Netcat connection","DNS LookUP"]
+            ["WinRM connection","Netcat Connection","DNS LookUP"]
         ]
 
     def setPixmapAsBackground(self, pixmap):
@@ -215,11 +215,11 @@ class Window(QMainWindow):
         def handler(event):
             if label_text == "Nmap":
                 self.show_nmap_options()
-            if label_text == "Netcat":
+            if label_text == "Netcat Connection":
                 self.show_ncat_options()
             if label_text == "Gobuster":
                 self.show_gobuster_options()
-            if label_text == "SSH":
+            if label_text == "SSH Connection":
                 self.show_ssh_options()
             else:
                 self.show_tool_options(label_text)

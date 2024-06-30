@@ -487,6 +487,10 @@ class Window(QMainWindow):
 
         def generate_command_search():
             cve = cve_input.text()
+            searchsploit = f"searchsploit {cve}"
+            return searchsploit
+        
+        if detailed:
             detailed = "" if detailed_scan_yes.isChecked() else ""
 
             url = "https://vulmon.com"
@@ -499,6 +503,7 @@ class Window(QMainWindow):
                 urllib3.disable_warnings()
 
                 def html_of_site3(url):
+                    cve = cve_input
                     cve_modified = cve.replace("--", "-")
                     path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
                     query3 = urljoin(url, path)
@@ -536,7 +541,13 @@ class Window(QMainWindow):
                 
             else:
                 print('Invalid URL please enter a valid url...')
-            
+            def run_search():
+                command = generate_command_search()
+                answer = QMessageBox.question(searchsploit_dialog, "Run Hydra", "Do you want to do search CVE? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer.No:
+                    generate_command_search()
+                else:
+                    pass #for now
     def show_ssh_options(self):
         ssh_dialog = QDialog(self)
         ssh_dialog.setWindowTitle("SSH Connection Options")

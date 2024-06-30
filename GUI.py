@@ -316,8 +316,8 @@ class Window(QMainWindow):
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_nmap)
         layout.addWidget(generate_button)
-
         dialog.exec_()
+
     def show_hydra_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Hydra Options")
@@ -346,6 +346,13 @@ class Window(QMainWindow):
         server_layout.addWidget(server_input)
         layout.addLayout(server_layout)
 
+        server_ip_layout = QHBoxLayout()
+        server_ip_label = QLabel("Enter Server's IP:",dialog)
+        server_ip_input = QLineEdit(dialog)
+        server_ip_layout.addWidget(server_ip_label)
+        server_ip_layout.addWidget(server_ip_input)
+        layout.addLayout(server_ip_layout)
+
         port_layout = QHBoxLayout()
         port_label = QLabel("Enter Server's port:",dialog)
         port_input = QLineEdit(dialog)
@@ -363,6 +370,28 @@ class Window(QMainWindow):
         output_area = QTextEdit(dialog)
         output_area.setReadOnly(True)
         layout.addWidget(output_area)
+
+        def generate_command_hydra():
+            username = username_input.text()
+            password = password_input.text()
+            server = server_input.text()
+            server_ip = server_ip_input.text()
+            port = port_input.text()
+            verbose = "-V" if verbose_yes.isChecked() else ""
+            if verbose:
+                command = f"hydra -l {username} -p {password} {server+"://"+server_ip+":"+port} -V" 
+            
+        def run_hydra():
+            command = generate_command_hydra()
+            answer = QMessageBox.question(dialog, "Run Hydra", "Do you want to do brute-force? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+        
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(run_hydra)
+        layout.addWidget(generate_button)
+        dialog.exec_()
         
     def show_gobuster_options(self):
         dialog = QDialog(self)

@@ -215,6 +215,8 @@ class Window(QMainWindow):
         def handler(event):
             if label_text == "Nmap":
                 self.show_nmap_options()
+            if label_text == "Hydra":
+                self.show_hydra_options()
             if label_text == "Netcat Connection":
                 self.show_ncat_options()
             if label_text == "Gobuster":
@@ -316,7 +318,52 @@ class Window(QMainWindow):
         layout.addWidget(generate_button)
 
         dialog.exec_()
+    def show_hydra_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Hydra Options")
+        dialog.setGeometry(100,100,600,500)
 
+        layout = QVBoxLayout(dialog)
+
+        username_layout = QHBoxLayout()
+        username_label = QLabel("Username:",dialog)
+        username_input = QLineEdit(dialog)
+        username_layout.addWidget(username_label)
+        username_layout.addWidget(username_input)
+        layout.addLayout(username_layout)
+
+        password_layout = QHBoxLayout()
+        password_label = QLabel("Password:",dialog)
+        password_input = QLineEdit(dialog)
+        password_layout.addWidget(password_label)
+        password_layout.addWidget(password_input)
+        layout.addLayout(password_layout)
+
+        server_layout = QHBoxLayout()
+        server_label = QLabel("Enter Server:",dialog)
+        server_input = QLineEdit(dialog)
+        server_layout.addWidget(server_label)
+        server_layout.addWidget(server_input)
+        layout.addLayout(server_layout)
+
+        port_layout = QHBoxLayout()
+        port_label = QLabel("Enter Server's port:",dialog)
+        port_input = QLineEdit(dialog)
+        port_layout.addWidget(port_label)
+        port_layout.addWidget(port_input)
+        layout.addLayout(port_layout)
+
+        verbose_layout = QHBoxLayout()
+        verbose_label = QLabel("Verbose", dialog)
+        verbose_yes = QCheckBox("Yes", dialog)
+        verbose_layout.addWidget(verbose_label)
+        verbose_layout.addWidget(verbose_yes)
+        layout.addLayout(verbose_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+        
     def show_gobuster_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Gobuster Options")
@@ -359,7 +406,11 @@ class Window(QMainWindow):
                 if answer == QMessageBox.Yes:
                     result = subprocess.getoutput(command)
                     result.append("\n" + result)
-            
+
+            gobuster_command = QPushButton("Generate Command",dialog)
+            gobuster_command.clicked.connect(generate_command_gobuster())
+            layout.addWidget(gobuster_command)
+
             generate_button = QPushButton("Start Gobuster", dialog)
             generate_button.clicked.connect(run_gobuster)
             layout.addWidget(generate_button)
@@ -370,65 +421,63 @@ class Window(QMainWindow):
             QMessageBox.warning("Your wordlist path is incorrect,Please check again")
 
     def show_ssh_options(self):
-        dialog = QDialog(self)
-        dialog.setWindowTitle("SSH Connection Options")
-        dialog.setGeometry(100, 100, 600, 500)
+        ssh_dialog = QDialog(self)
+        ssh_dialog.setWindowTitle("SSH Connection Options")
+        ssh_dialog.setGeometry(300, 200, 400, 300)
 
-        layout = QVBoxLayout(dialog)
+        layout = QVBoxLayout(ssh_dialog)
 
-        ip_layout = QHBoxLayout()
-        ip_label = QLabel("IP address:", dialog)
-        ip_input = QLineEdit(dialog)
-        ip_layout.addWidget(ip_label)
-        ip_layout.addWidget(ip_input)
-        layout.addLayout(ip_layout)
+        ip_label = QLabel("Enter IP Address:")
+        self.ip_edit = QLineEdit()
+        layout.addWidget(ip_label)
+        layout.addWidget(self.ip_edit)
 
-        port_layout = QHBoxLayout()
-        port_label = QLabel("Port:  (Default is 22)", dialog)
-        port_input = QLineEdit(dialog)
-        port_layout.addWidget(port_label)
-        port_layout.addWidget(port_input)
-        layout.addLayout(port_layout)
+        port_label = QLabel("Enter Port Number:(Default is 22)")
+        self.port_edit = QLineEdit()
+        layout.addWidget(port_label)
+        layout.addWidget(self.port_edit)
 
-        hostname_layout = QHBoxLayout()
-        hostname_label = QLabel("Hostname:", dialog)
-        hostname_input = QLineEdit(dialog)
-        hostname_layout.addWidget(hostname_label)
-        hostname_layout.addWidget(hostname_input)
-        layout.addLayout(hostname_layout)
+        username_label = QLabel("Enter Username:")
+        self.username_edit = QLineEdit()
+        layout.addWidget(username_label)
+        layout.addWidget(self.username_edit)
 
-        output_area = QTextEdit(dialog)
-        output_area.setReadOnly(True)
-        layout.addWidget(output_area)
+        password_label = QLabel("Enter Password:")
+        self.password_edit = QLineEdit()
+        layout.addWidget(password_label)
+        layout.addWidget(self.password_edit)
 
-        def generate_command_ssh():
-            ip = ip_input.text()
-            hostname = hostname_input.text()
-            port = port_input.text()
-            
-            if not hostname or not ip:
-                QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and hostname.")
-                return
+        button_box = QHBoxLayout()
 
-            command = f"ssh {hostname}@{ip}"
-            if port:
-                command += f" -p {port}"
-            output_area.setText(command)
-            return command
+        run_button = QPushButton("Run SSH")
+        run_button.clicked.connect(self.run_ssh)
+        button_box.addWidget(run_button)
 
-        def run_ssh():
-            command = generate_command_ssh()
-            if command:
-                answer = QMessageBox.question(dialog, "Connect SSH", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-                if answer == QMessageBox.Yes:
-                    result = subprocess.getoutput(command)
-                    output_area.append("\n" + result)
-            
-        generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(run_ssh())
-        layout.addWidget(generate_button)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(ssh_dialog.reject)
+        button_box.addWidget(cancel_button)
 
-        dialog.exec_()
+        layout.addLayout(button_box)
+
+        ssh_dialog.exec_()
+
+    def run_ssh(self):
+        ip = self.ip_edit.text()
+        port = self.port_edit.text()
+        username = self.username_edit.text()
+        password = self.password_edit.text()
+
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, port=port, username=username, password=password)
+            stdin, stdout, stderr = ssh.exec_command('ls')
+            output = stdout.read().decode()
+            ssh.close()
+            self.show_message(f'SSH Command Output:\n{output}')
+
+        except Exception as e:
+            self.show_message(f'Error: {str(e)}')
 
     def show_ncat_options(self):
         dialog = QDialog(self)

@@ -215,10 +215,12 @@ class Window(QMainWindow):
         def handler(event):
             if label_text == "Nmap":
                 self.show_nmap_options()
-            if label_text == "Ncat":
+            if label_text == "Netcat":
                 self.show_ncat_options()
             if label_text == "Gobuster":
                 self.show_gobuster_options()
+            if label_text == "SSH":
+                self.show_ssh_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -412,7 +414,7 @@ class Window(QMainWindow):
 
         def run_ncat():
             command = generate_command_ncat()
-            answer = QMessageBox.question(dialog, "Run Ncat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(dialog, "Connect Netcat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
@@ -472,7 +474,7 @@ class Window(QMainWindow):
 
         def run_ssh():
             command = generate_command_ssh()
-            answer = QMessageBox.question(dialog, "Run Ncat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(dialog, "Connect SSH", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)

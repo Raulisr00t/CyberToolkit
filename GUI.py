@@ -565,10 +565,10 @@ class Window(QMainWindow):
         searchsploit_dialog.setLayout(layout)
         searchsploit_dialog.exec_()
 
-    def ftp_options(self):
+    def show_ftp_options(self):
         ftp_dialog = QDialog(self)
         ftp_dialog.setWindowTitle("FTP Connection Options")
-        ftp_dialog.setGeometry(250,100,450,350)
+        ftp_dialog.setGeometry(250, 100, 450, 350)
 
         layout = QVBoxLayout(ftp_dialog)
 
@@ -576,67 +576,72 @@ class Window(QMainWindow):
         url_input = QLineEdit(ftp_dialog)
         layout.addWidget(url_label)
         layout.addWidget(url_input)
-        layout.addLayout(layout)
-        
-        port_label = QLabel("Enter Port Address:(Default is 21 or 20)")
-        port_input = QLineEdit(ftp_dialog)
-        layout.addWidget(port_label)
-        layout.addWidget(port_input)
-        layout.addLayout(layout)
 
-        ip_label = QLabel("Enter IP Address:")
+        ip_label = QLabel("Enter IP Address:", ftp_dialog)
         ip_input = QLineEdit(ftp_dialog)
         layout.addWidget(ip_label)
         layout.addWidget(ip_input)
-        layout.addLayout(layout)
 
-        passwd_label = QLabel("Enter a Password:")
-        passwd_input = QLineEdit(ftp_dialog)
-        layout.addWidget(passwd_label)
-        layout.addWidget(passwd_input)
-        layout.addLayout()
-
-        user_label = QLabel("Enter a Username:")
+        user_label = QLabel("Enter Username:", ftp_dialog)
         user_input = QLineEdit(ftp_dialog)
         layout.addWidget(user_label)
         layout.addWidget(user_input)
-        layout.addLayout()
+
+        passwd_label = QLabel("Enter Password:", ftp_dialog)
+        passwd_input = QLineEdit(ftp_dialog)
+        passwd_input.setEchoMode(QLineEdit.Password)
+        layout.addWidget(passwd_label)
+        layout.addWidget(passwd_input)
+
+        port_label = QLabel("Enter Port Address (Default is 21):", ftp_dialog)
+        port_input = QLineEdit(ftp_dialog)
+        layout.addWidget(port_label)
+        layout.addWidget(port_input)
+
+        output_area = QTextEdit(ftp_dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
 
         def generate_ftp_command():
             domain = url_input.text()
             ip = ip_input.text()
-            password = passwd_input.text()
-            port = port_input.text()
             username = user_input.text()
-            if not domain:
-                command = f"ftp {ip} {port}"
-            else:
+            password = passwd_input.text()
+            port = port_input.text() or "21"
+
+            if domain:
                 command = f"ftp {domain} {port}"
+            else:
+                command = f"ftp {ip} {port}"
 
-            generate_button = QPushButton("Generate Command", ftp_dialog)
-            generate_button.clicked.connect(generate_ftp_command) 
-            layout.addWidget(generate_button)
+            output_area.setText(command)
+            return command, ip, username, password, port
 
-            output_area = QTextEdit(ftp_dialog)
-            output_area.setReadOnly(True)
-            output_area.append(command)
-            layout.addWidget(output_area)
-            
-            def run_ftp():
-                if domain:
-                    ftplib.FTP(domain,ip,username,password,port)
-                elif not domain:
-                    ftplib.FTP(ip,password,port)
+        def run_ftp():
+            command, ip, username, password, port = generate_ftp_command()
+
+            try:
+                if ip:
+                    ftp = ftplib.FTP()
+                    ftp.connect(ip, int(port))
+                    ftp.login(user=username, passwd=password)
+                    output_area.append("\nConnected successfully")
+                    ftp.quit()
                 else:
-                    QMessageBox.warning("Please look through options again something goes wrong")
-                    pass
-                    
-                    generate_button2 = QPushButton("Run Command", ftp_dialog)
-                    generate_button2.clicked.connect(run_ftp) 
-                    layout.addWidget(generate_button2)
+                    QMessageBox.warning(self, "Error", "IP Address is required")
+            except Exception as e:
+                output_area.append(f"\nError: {str(e)}")
 
-                    ftp_dialog.setLayout(layout)
-                    ftp_dialog.exec_()
+        generate_button = QPushButton("Generate Command", ftp_dialog)
+        generate_button.clicked.connect(generate_ftp_command)
+        layout.addWidget(generate_button)
+
+        run_button = QPushButton("Run Command", ftp_dialog)
+        run_button.clicked.connect(run_ftp)
+        layout.addWidget(run_button)
+
+        ftp_dialog.setLayout(layout)
+        ftp_dialog.exec_()
 
     def show_ssh_options(self):
         ssh_dialog = QDialog(self)

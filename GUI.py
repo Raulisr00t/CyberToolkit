@@ -608,11 +608,20 @@ class Window(QMainWindow):
             password = passwd_input.text()
             port = port_input.text()
             username = user_input.text()
+            if not domain:
+                command = f"ftp {ip} {port}"
+            else:
+                command = f"ftp {domain} {port}"
 
             generate_button = QPushButton("Generate Command", ftp_dialog)
             generate_button.clicked.connect(generate_ftp_command) 
             layout.addWidget(generate_button)
 
+            output_area = QTextEdit(ftp_dialog)
+            output_area.setReadOnly(True)
+            output_area.append(command)
+            layout.addWidget(output_area)
+            
             def run_ftp():
                 if domain:
                     ftplib.FTP(domain,ip,username,password,port)

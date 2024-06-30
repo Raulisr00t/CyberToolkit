@@ -550,14 +550,18 @@ class Window(QMainWindow):
                 output_area.append(f"Error fetching details: {str(e)}")
         
         generate_button = QPushButton("Generate Command", searchsploit_dialog)
-        generate_button.clicked.connect(run_search)
+        generate_button.clicked.connect(generate_command_search)  # Correct connection
         layout.addWidget(generate_button)
-        searchsploit_dialog.setLayout(layout)
-        searchsploit_dialog.exec_()
+        # generate_button = QPushButton("Generate Command", searchsploit_dialog)
+        # generate_button.clicked.connect(run_search)
+        # layout.addWidget(generate_button)
+        # searchsploit_dialog.setLayout(layout)
+        # searchsploit_dialog.exec_()
 
-        generate_button2 = QPushButton("Run Command",searchsploit_dialog)
-        generate_button2.clicked.connect(detailed_info)
+        generate_button2 = QPushButton("Run Command", searchsploit_dialog)
+        generate_button2.clicked.connect(detailed_info)  # Correct connection
         layout.addWidget(generate_button2)
+
         searchsploit_dialog.setLayout(layout)
         searchsploit_dialog.exec_()
 

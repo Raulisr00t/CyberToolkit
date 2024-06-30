@@ -489,6 +489,7 @@ class Window(QMainWindow):
             global cve
             cve = cve_input.text()
             searchsploit = f"searchsploit {cve}"
+            output_area.append(searchsploit)
             return searchsploit
 
         def run_search():

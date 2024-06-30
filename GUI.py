@@ -463,12 +463,12 @@ class Window(QMainWindow):
     def show_searchsploit_options(self):
         searchsploit_dialog = QDialog(self)
         searchsploit_dialog.setWindowTitle("Searchsploit Options")
-        searchsploit_dialog.setGeometry(100,100,600,500)
+        searchsploit_dialog.setGeometry(100, 100, 600, 500)
 
         layout = QVBoxLayout(searchsploit_dialog)
 
         cve_layout = QHBoxLayout()
-        cve_label = QLabel("Enter a CVE-ID:",searchsploit_dialog)
+        cve_label = QLabel("Enter a CVE-ID:", searchsploit_dialog)
         cve_input = QLineEdit(searchsploit_dialog)
         cve_layout.addWidget(cve_label)
         cve_layout.addWidget(cve_input)
@@ -489,65 +489,64 @@ class Window(QMainWindow):
             cve = cve_input.text()
             searchsploit = f"searchsploit {cve}"
             return searchsploit
-        
-        if detailed:
-            detailed = "" if detailed_scan_yes.isChecked() else ""
 
-            url = "https://vulmon.com"
-            try:
-                headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                            'Chrome/58.0.3029.110 Safari/537.36'
-                }
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                urllib3.disable_warnings()
+        def run_search():
+            command = generate_command_search()
+            detailed = detailed_scan_yes.isChecked()
 
-                def html_of_site3(url):
-                    cve = cve_input
-                    cve_modified = cve.replace("--", "-")
-                    path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
-                    query3 = urljoin(url, path)
+            if detailed:
+                url = "https://vulmon.com"
+                try:
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                    'Chrome/58.0.3029.110 Safari/537.36'
+                    }
+                    warnings.filterwarnings("ignore", category=DeprecationWarning)
+                    urllib3.disable_warnings()
 
-                    response = requests.get(query3,headers=headers,verify=False)
-                    if response.status_code != 200:
-                        print(f'Your request is not OK:{response.status_code}')
-                        return None
-                    
-                    return response.content.decode()
-                html = html_of_site3(url)
-                soup = BeautifulSoup(html,'html.parser')
-                description_tag = soup.find("p",{'class': 'jsdescription1'})
-                cvss = soup.find("div",{'class': 'value'})
-                references2_div = soup.find('div', class_='ui list ex5')
-                if description_tag:
-                    description = description_tag.get_text(strip=True)
-                    print(description)
+                    def html_of_site3(url):
+                        cve = cve_input
+                        cve_modified = cve.replace("--", "-")
+                        path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
+                        query3 = urljoin(url, path)
 
-                if cvss:
-                    score = cvss.get_text(strip=True)
-                    if score == 'NA':
-                        print('Please enter cve-id correctly...')
-                        
-                    else:
-                        print('CVSS Score is:',score)
+                        response = requests.get(query3, headers=headers, verify=False)
+                        if response.status_code != 200:
+                            return None
+                        return response.content.decode()
 
-                if references2_div:
-                    reference2 = references2_div.find_all('a')
-                    for reference_2 in reference2:
-                        print(reference_2['href'])
+                    html = html_of_site3(url)
+                    soup = BeautifulSoup(html, 'html.parser')
+                    description_tag = soup.find("p", {'class': 'jsdescription1'})
+                    cvss = soup.find("div", {'class': 'value'})
+                    references2_div = soup.find('div', class_='ui list ex5')
 
-            except Exception as e:
-                print('Please enter cve-id correctly...')
-                
+                    if description_tag:
+                        description = description_tag.get_text(strip=True)
+                        output_area.append(f"Description: {description}")
+
+                    if cvss:
+                        score = cvss.get_text(strip=True)
+                        output_area.append(f"CVSS Score: {score}")
+
+                    if references2_div:
+                        reference2 = references2_div.find_all('a')
+                        for reference_2 in reference2:
+                            output_area.append(f"Reference: {reference_2['href']}")
+
+                except Exception as e:
+                    output_area.append(f"Error fetching details: {str(e)}")
+
             else:
-                print('Invalid URL please enter a valid url...')
-            def run_search():
-                command = generate_command_search()
-                answer = QMessageBox.question(searchsploit_dialog, "Run Hydra", "Do you want to do search CVE? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-                if answer.No:
-                    generate_command_search()
-                else:
-                    pass #for now
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+
+        generate_button = QPushButton("Run Search", searchsploit_dialog)
+        generate_button.clicked.connect(run_search)
+        layout.addWidget(generate_button)
+
+        searchsploit_dialog.exec_()
+
     def show_ssh_options(self):
         ssh_dialog = QDialog(self)
         ssh_dialog.setWindowTitle("SSH Connection Options")

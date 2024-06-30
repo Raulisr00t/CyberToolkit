@@ -491,50 +491,52 @@ class Window(QMainWindow):
 
             url = "https://vulmon.com"
             try:
-                    headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                                'Chrome/58.0.3029.110 Safari/537.36'
-}
-                    warnings.filterwarnings("ignore", category=DeprecationWarning)
-                    urllib3.disable_warnings()
-                    def html_of_site3(url):
-                        cve_modified = cve.replace("--", "-")
-                        path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
-                        query3 = urljoin(urls[2], path)
+                headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                            'Chrome/58.0.3029.110 Safari/537.36'
+                }
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                urllib3.disable_warnings()
 
-                        response = requests.get(query3,headers=user_agent,verify=False)
-                        if response.status_code != 200:
-                            print(f'Your request is not OK:{response.status_code}')
-                            return None
-                        return response.content.decode()
-                    html = html_of_site3(url)
-                    soup = BeautifulSoup(html,'html.parser')
-                    description_tag = soup.find("p",{'class': 'jsdescription1'})
-                    cvss = soup.find("div",{'class': 'value'})
-                    references2_div = soup.find('div', class_='ui list ex5')
-                    if description_tag:
-                        description = description_tag.get_text(strip=True)
-                        print(description)
+                def html_of_site3(url):
+                    cve_modified = cve.replace("--", "-")
+                    path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
+                    query3 = urljoin(url, path)
 
-                    if cvss:
-                        score = cvss.get_text(strip=True)
-                        if score == 'NA':
-                            print('Please enter cve-id correctly...')
-                            
-                        else:
-                            print('CVSS Score is:',score)
-
-                    if references2_div:
-                        reference2 = references2_div.find_all('a')
-                        for reference_2 in reference2:
-                            print(reference_2['href'])
-                except Exception as e:
-                    print('Please enter cve-id correctly...')
+                    response = requests.get(query3,headers=headers,verify=False)
+                    if response.status_code != 200:
+                        print(f'Your request is not OK:{response.status_code}')
+                        return None
                     
+                    return response.content.decode()
+                html = html_of_site3(url)
+                soup = BeautifulSoup(html,'html.parser')
+                description_tag = soup.find("p",{'class': 'jsdescription1'})
+                cvss = soup.find("div",{'class': 'value'})
+                references2_div = soup.find('div', class_='ui list ex5')
+                if description_tag:
+                    description = description_tag.get_text(strip=True)
+                    print(description)
+
+                if cvss:
+                    score = cvss.get_text(strip=True)
+                    if score == 'NA':
+                        print('Please enter cve-id correctly...')
+                        
+                    else:
+                        print('CVSS Score is:',score)
+
+                if references2_div:
+                    reference2 = references2_div.find_all('a')
+                    for reference_2 in reference2:
+                        print(reference_2['href'])
+
+            except Exception as e:
+                print('Please enter cve-id correctly...')
+                
             else:
                 print('Invalid URL please enter a valid url...')
-                
-            cve_regex=r'^\d{4}-\d{4,}$'
+            
     def show_ssh_options(self):
         ssh_dialog = QDialog(self)
         ssh_dialog.setWindowTitle("SSH Connection Options")

@@ -258,7 +258,7 @@ class Window(QMainWindow):
         layout = QVBoxLayout(dialog)
 
         url_layout = QHBoxLayout()
-        url_label = QLabel("URL:", dialog)
+        url_label = QLabel("Domain:", dialog)
         url_input = QLineEdit(dialog)
         url_layout.addWidget(url_label)
         url_layout.addWidget(url_input)
@@ -302,8 +302,13 @@ class Window(QMainWindow):
             thread_count = thread_count_input.text()
             ip_address = ip_address_input.text()
             scan_type = scan_type_combo.currentText()
+            s = scan_type.split("(")
+            f = s[1]
+            list = f.split(")")
+            scan = list[0]
+
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
-            command = f"nmap {url} {ip_address} {scan_type} {version_scan} --min-rate={thread_count}"
+            command = f"nmap {url} {ip_address} {scan} {version_scan} --min-rate={thread_count}"
             output_area.setText(command)
 
         def run_nmap():
@@ -392,7 +397,7 @@ class Window(QMainWindow):
         generate_button.clicked.connect(run_hydra)
         layout.addWidget(generate_button)
         dialog.exec_()
-        
+
     def show_gobuster_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Gobuster Options")

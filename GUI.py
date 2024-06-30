@@ -245,6 +245,7 @@ class Window(QMainWindow):
                 os.system(tool_name)
             else:
                 pass #for now
+
     def show_nmap_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Nmap Options")
@@ -368,7 +369,7 @@ class Window(QMainWindow):
 
     def show_ncat_options(self):
         dialog = QDialog(self)
-        dialog.setWindowTitle("NetCat Options")
+        dialog.setWindowTitle("NetCat Connection Options")
         dialog.setGeometry(100, 100, 600, 500)
 
         layout = QVBoxLayout(dialog)
@@ -418,6 +419,66 @@ class Window(QMainWindow):
         
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_ncat)
+        layout.addWidget(generate_button)
+
+        dialog.exec_()
+
+    def show_ssh_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("SSH Connection Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        ip_layout = QHBoxLayout()
+        ip_label = QLabel("IP adress:", dialog)
+        ip_input = QLineEdit(dialog)
+        ip_layout.addWidget(ip_label)
+        ip_layout.addWidget(ip_input)
+        layout.addLayout(ip_layout)
+
+        port_layout = QHBoxLayout()
+        port_label = QLabel("Port:  (Default is 22)", dialog)
+        port_input = QLineEdit(dialog)
+        port_layout.addWidget(port_label)
+        port_layout.addWidget(port_input)
+        layout.addLayout(port_layout)
+
+        hostname_layout = QHBoxLayout()
+        hostname_label = QLabel("Hostname:",dialog)
+        hostname_input = QLineEdit(dialog)
+        hostname_layout.addWidget(hostname_label)
+        hostname_layout.addWidget(hostname_input)
+        layout.addLayout(port_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_ssh():
+            ip = ip_input.text()
+            hostname = hostname_input.text()
+            port = port_input.text()
+
+            if command:
+                if port_input:
+                    command = f"ssh {hostname}@{ip} -p {port}"
+                    output_area.setText(command)
+                else:
+                    command = f"ssh {hostname}@{ip}"
+                    output_area.setText(command)
+            else:
+                pass
+
+        def run_ssh():
+            command = generate_command_ssh()
+            answer = QMessageBox.question(dialog, "Run Ncat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+        
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(run_ssh)
         layout.addWidget(generate_button)
 
         dialog.exec_()

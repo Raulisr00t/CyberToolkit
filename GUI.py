@@ -229,6 +229,8 @@ class Window(QMainWindow):
                 self.show_searchsploit_options()
             if label_text == "SSH Connection":
                 self.show_ssh_options()
+            if label_text == "FTP Connection":
+                self.show_ftp_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -494,10 +496,16 @@ class Window(QMainWindow):
 
         def run_search():
             command = generate_command_search()
+            global detailed
             detailed = "-w" if detailed_scan_yes.isChecked() else ""
-            searchsploit = f"searchsploit {cve} {detailed}"
+            searchsploit = f"searchsploit {cve}"
 
-            if detailed:
+            result = subprocess.getoutput(command)
+            output_area.append("\n" + result)
+            return searchsploit
+            
+        if detailed:
+            def detailed_info():
                 url = "https://vulmon.com"
                 try:
                     headers = {
@@ -539,15 +547,16 @@ class Window(QMainWindow):
 
                 except Exception as e:
                     output_area.append(f"Error fetching details: {str(e)}")
-
-            else:
-                result = subprocess.getoutput(command)
-                output_area.append("\n" + result)
-            return searchsploit
         
-        generate_button = QPushButton("Run Search", searchsploit_dialog)
+        generate_button = QPushButton("Generate Command", searchsploit_dialog)
         generate_button.clicked.connect(run_search)
         layout.addWidget(generate_button)
+        searchsploit_dialog.setLayout(layout)
+        searchsploit_dialog.exec_()
+
+        generate_button2 = QPushButton("Run Command",searchsploit_dialog)
+        generate_button2.clicked.connect(detailed_info)
+        layout.addWidget(generate_button2)
         searchsploit_dialog.setLayout(layout)
         searchsploit_dialog.exec_()
 

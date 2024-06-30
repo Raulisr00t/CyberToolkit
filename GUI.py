@@ -232,7 +232,7 @@ class Window(QMainWindow):
             program_files = os.getenv("ProgramFiles")
             program = f"{program_files}\\{tool_name}\\{tool_name}"
             program = program.split('\\')
-            if os.path.exists(program)
+            if os.path.exists(program):
                 os.system("start "+program[3])
                 time.sleep(1)
                 msg.setStandardButtons(QMessageBox.Ok)

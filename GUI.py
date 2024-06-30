@@ -490,63 +490,64 @@ class Window(QMainWindow):
         def generate_command_search():
             global cve
             cve = cve_input.text()
+            global detailed
+            detailed = "-w" if detailed_scan_yes.isChecked() else ""
+
             searchsploit = f"searchsploit {cve}"
             output_area.append(searchsploit)
             return searchsploit
 
         def run_search():
             command = generate_command_search()
-            global detailed
-            detailed = "-w" if detailed_scan_yes.isChecked() else ""
             searchsploit = f"searchsploit {cve}"
 
             result = subprocess.getoutput(command)
             output_area.append("\n" + result)
             return searchsploit
             
-        if detailed:
-            def detailed_info():
-                url = "https://vulmon.com"
-                try:
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                                    'Chrome/58.0.3029.110 Safari/537.36'
-                    }
-                    warnings.filterwarnings("ignore", category=DeprecationWarning)
-                    urllib3.disable_warnings()
+        # if detailed:
+        def detailed_info():
+            url = "https://vulmon.com"
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                'Chrome/58.0.3029.110 Safari/537.36'
+                }
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                urllib3.disable_warnings()
 
-                    def html_of_site3(url):
-                        cve = cve_input
-                        cve_modified = cve.replace("--", "-")
-                        path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
-                        query3 = urljoin(url, path)
+                def html_of_site3(url):
+                    cve = cve_input
+                    cve_modified = cve.replace("--", "-")
+                    path = f'vulnerabilitydetails?qid=CVE-{cve_modified}'
+                    query3 = urljoin(url, path)
 
-                        response = requests.get(query3, headers=headers, verify=False)
-                        if response.status_code != 200:
-                            return None
-                        return response.content.decode()
+                    response = requests.get(query3, headers=headers, verify=False)
+                    if response.status_code != 200:
+                        return None
+                    return response.content.decode()
 
-                    html = html_of_site3(url)
-                    soup = BeautifulSoup(html, 'html.parser')
-                    description_tag = soup.find("p", {'class': 'jsdescription1'})
-                    cvss = soup.find("div", {'class': 'value'})
-                    references2_div = soup.find('div', class_='ui list ex5')
+                html = html_of_site3(url)
+                soup = BeautifulSoup(html, 'html.parser')
+                description_tag = soup.find("p", {'class': 'jsdescription1'})
+                cvss = soup.find("div", {'class': 'value'})
+                references2_div = soup.find('div', class_='ui list ex5')
 
-                    if description_tag:
-                        description = description_tag.get_text(strip=True)
-                        output_area.append(f"Description: {description}")
+                if description_tag:
+                    description = description_tag.get_text(strip=True)
+                    output_area.append(f"Description: {description}")
 
-                    if cvss:
-                        score = cvss.get_text(strip=True)
-                        output_area.append(f"CVSS Score: {score}")
+                if cvss:
+                    score = cvss.get_text(strip=True)
+                    output_area.append(f"CVSS Score: {score}")
 
-                    if references2_div:
-                        reference2 = references2_div.find_all('a')
-                        for reference_2 in reference2:
-                            output_area.append(f"Reference: {reference_2['href']}")
+                if references2_div:
+                    reference2 = references2_div.find_all('a')
+                    for reference_2 in reference2:
+                        output_area.append(f"Reference: {reference_2['href']}")
 
-                except Exception as e:
-                    output_area.append(f"Error fetching details: {str(e)}")
+            except Exception as e:
+                output_area.append(f"Error fetching details: {str(e)}")
         
         generate_button = QPushButton("Generate Command", searchsploit_dialog)
         generate_button.clicked.connect(run_search)

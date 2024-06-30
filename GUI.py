@@ -11,6 +11,8 @@ from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import Qt
 import platform
 import subprocess
+import paramiko,netmiko
+import ftplib
 
 def background():
     #dont worry it's not malware it is for download app's background))
@@ -328,29 +330,33 @@ class Window(QMainWindow):
         wordlist_layout = QHBoxLayout()
         wordlist_label = QLabel("Wordlist:", dialog)
         wordlist_input = QLineEdit(dialog)
-        wordlist_layout.addWidget(wordlist_label)
-        wordlist_layout.addWidget(wordlist_input)
-        layout.addLayout(wordlist_layout)
+        if os.path.exists(wordlist_input):
+            wordlist_layout.addWidget(wordlist_label)
+            wordlist_layout.addWidget(wordlist_input)
+            layout.addLayout(wordlist_layout)
 
-        def generate_command_gobuster():
-            url = url_input.text()
-            thread_count = thread_count_input.text()
-            wordlist = wordlist_input.text()
-            command = f"gobuster dir -u {url} -w {wordlist} -t {thread_count}"
-            return command
+            def generate_command_gobuster():
+                url = url_input.text()
+                thread_count = thread_count_input.text()
+                wordlist = wordlist_input.text()
+                command = f"gobuster dir -u {url} -w {wordlist} -t {thread_count}"
+                return command
 
-        def run_gobuster():
-            command = generate_command_gobuster()
-            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-            if answer == QMessageBox.Yes:
-                result = subprocess.getoutput(command)
-                result.append("\n" + result)
-        
-        generate_button = QPushButton("Start Gobuster", dialog)
-        generate_button.clicked.connect(run_gobuster)
-        layout.addWidget(generate_button)
+            def run_gobuster():
+                command = generate_command_gobuster()
+                answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    result.append("\n" + result)
+            
+            generate_button = QPushButton("Start Gobuster", dialog)
+            generate_button.clicked.connect(run_gobuster)
+            layout.addWidget(generate_button)
 
-        dialog.exec_()
+            dialog.exec_()
+            
+        else:
+            QMessageBox.warning("Your wordlist path is incorrect,Please check again")
 
     def show_ncat_options(self):
         dialog = QDialog(self)

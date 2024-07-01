@@ -221,6 +221,8 @@ class Window(QMainWindow):
                 self.show_nmap_options()
             if label_text == "Hydra":
                 self.show_hydra_options()
+            if label_text == "Curl":
+                self.show_curl_options()
             if label_text == "Netcat Connection":
                 self.show_ncat_options()
             if label_text == "Gobuster":
@@ -395,7 +397,7 @@ class Window(QMainWindow):
             verbose = "-V" if verbose_yes.isChecked() else ""
             if verbose:
                 command = f"hydra -l {username} -p {password} {server+"://"+server_ip+":"+port} -V" 
-            
+        
         def run_hydra():
             command = generate_command_hydra()
             answer = QMessageBox.question(dialog, "Run Hydra", "Do you want to do brute-force? (Y/N)", QMessageBox.Yes | QMessageBox.No)
@@ -463,6 +465,91 @@ class Window(QMainWindow):
     
         else:
             QMessageBox.warning("Your wordlist path is incorrect,Please check again")
+
+    def show_curl_options(self):
+        curl_dialog = QDialog(self)
+        curl_dialog.setWindowTitle("Curl Options")
+        curl_dialog.setGeometry(100,100,600,500)
+
+        layout = QVBoxLayout(curl_dialog)
+
+        ip_layout = QHBoxLayout()
+        ip_label = QLabel("Enter ip address:")
+        ip_input = QLineEdit(curl_dialog)
+        ip_layout.addWidget(ip_label)
+        ip_layout.addWidget(ip_input)
+        layout.addLayout(ip_layout)
+
+        url_layout = QHBoxLayout()
+        url_label = QLabel("Enter a url:")
+        url_input = QLineEdit(curl_dialog)
+        url_layout.addWidget(url_label)
+        url_layout.addWidget(url_input)
+        layout.addLayout(url_layout)
+
+        request_type_layout = QHBoxLayout()
+        request_type_label = QLabel("Request Type:", curl_dialog)
+        request_type_combo = QComboBox(curl_dialog)
+        request_type_combo.addItems(["GET", "POST", "OPTIONS", "PUT", "DELETE","HEAD"])
+        request_type_layout.addWidget(request_type_label)
+        request_type_layout.addWidget(request_type_combo)
+        layout.addLayout(request_type_layout)
+        
+        server_info_layout = QHBoxLayout()
+        server_info_label = QLabel("Server INFO")
+        server_info_yes = QCheckBox("Yes",curl_dialog)
+        server_info_layout.addWidget(server_info_label)
+        server_info_layout.addWidget(server_info_yes)
+        layout.addLayout(server_info_layout)
+
+        output_area = QTextEdit(curl_dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_curl():
+            url = url_input.text()
+            ip = ip_input.text()
+            request_type = request_type_combo.currentText()
+            if "https" not in url or "http" not in url: 
+                url = "http://" + url
+                response = requests.get(url)
+                if response.status_code < 400:
+                    if request_type == "GET":
+                        command = f"curl {url}"
+                    if not request_type == "GET":
+                        data_layout = QHBoxLayout()
+                        data_label = QLabel("Enter Data:")
+                        data_input = QLineEdit(curl_dialog)
+                        data_layout.addWidget(data_label)
+                        data_layout.addWidget(data_input)
+                        
+                        data = data_input.text()
+
+                        if request_type == "POST":
+                            command = f"curl -X POST {url} -d {data} -H application/json"
+                        if request_type == "PUT":
+                            command = f"curl -X PUT {url} -d {data} -h application/json"
+                        if request_type == "OPTIONS":
+                            command = f"curl -X OPTIONS {url} -H Access-Control-Request-Method:content-type {data}"
+                        if request_type == "DELETE":
+                            command = f"curl -X DELETE {url} {data}"
+                else:
+                    pass
+                server_info = "" if server_info_yes.isChecked() else ""
+                command = f"curl {url}"
+                output_area.setText(command)
+
+        def run_nmap():
+            command = generate_command_curl()
+            answer = QMessageBox.question(curl_dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+        
+        generate_button = QPushButton("Generate Command", curl_dialog)
+        generate_button.clicked.connect(run_nmap)
+        layout.addWidget(generate_button)
+        curl_dialog.exec_()
 
     def show_searchsploit_options(self):
         searchsploit_dialog = QDialog(self)
@@ -685,7 +772,7 @@ class Window(QMainWindow):
         output_area.setReadOnly(True)
         layout.addWidget(output_area)
 
-        def generate_command_nmap():
+        def generate_command_lookup():
             url = url_input.text()
             ip_address = ip_address_input.text()
             scan_type = scan_type_combo.currentText()
@@ -700,15 +787,16 @@ class Window(QMainWindow):
                 output_area.setText(command)
             else:
                 command = f"nslookup {ip_address} {scan}"
-        def run_nmap():
-            command = generate_command_nmap()
+
+        def run_lookup():
+            command = generate_command_lookup()
             answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
         
         generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(run_nmap)
+        generate_button.clicked.connect(run_lookup)
         layout.addWidget(generate_button)
         dialog.exec_()
 
@@ -748,7 +836,7 @@ class Window(QMainWindow):
         cancel_button = QPushButton("Cancel")
         cancel_button.clicked.connect(ssh_dialog.reject)
         button_box.addWidget(cancel_button)
-
+        
         layout.addLayout(button_box)
 
         ssh_dialog.exec_()

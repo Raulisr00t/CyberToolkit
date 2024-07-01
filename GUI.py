@@ -5,9 +5,9 @@ import requests
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy,
     QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog,
-    QLineEdit, QComboBox, QCheckBox, QTextEdit
+    QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser
 )
-from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush
+from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush,QFont,QTextCursor
 from PyQt5.QtCore import Qt
 import platform
 import subprocess
@@ -75,7 +75,7 @@ class Window(QMainWindow):
 
         self.general_team_tools = [
             ["SSH Connection", "FTP Connection", "RDP Connection"],
-            ["WinRM connection","Netcat Connection","DNS LookUP"]
+            ["Netcat Connection","OSINT Tool","DNS LookUP"]
         ]
 
     def setPixmapAsBackground(self, pixmap):
@@ -233,6 +233,8 @@ class Window(QMainWindow):
                 self.show_ssh_options()
             if label_text == "FTP Connection":
                 self.show_ftp_options()
+            if label_text == "OSINT Tool":
+                self.show_osint_options()
             if label_text == "DNS Lookup":
                 self.show_lookup_options()
             if label_text == "Enum4Linux":
@@ -319,7 +321,7 @@ class Window(QMainWindow):
             password = password_input.text()
             server = server_type_combo.currentText()
             server = server.split(' ')[2]
-            
+
             if not domain:
                 command = f"crackmapexec {server} {ip} -u {username} -p {password}"
             else:
@@ -773,6 +775,83 @@ class Window(QMainWindow):
         searchsploit_dialog.setLayout(layout)
         searchsploit_dialog.exec_()
 
+    def show_osint_options(self):
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
+        main_layout = QVBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        bold_font = QFont("Helvetica", 10, QFont.Bold)
+
+        # Search query input
+        entry_label = QLabel("Enter your search query:")
+        entry_label.setFont(bold_font)
+        main_layout.addWidget(entry_label)
+
+        self.entry = QLineEdit()
+        main_layout.addWidget(self.entry)
+
+        # Number of results input
+        count_label = QLabel("How many results do you want to see:")
+        count_label.setFont(bold_font)
+        main_layout.addWidget(count_label)
+
+        self.count_entry = QLineEdit()
+        main_layout.addWidget(self.count_entry)
+
+        # Search button
+        search_button = QPushButton("Search")
+        search_button.clicked.connect(self.perform_search)
+        main_layout.addWidget(search_button)
+
+        # Results display area
+        results_label = QLabel("Search Results:")
+        results_label.setFont(bold_font)
+        main_layout.addWidget(results_label)
+
+        self.results_text = QTextEdit()
+        self.results_text.setReadOnly(True)
+        self.results_text.setLineWrapMode(QTextEdit.NoWrap)
+        self.results_text.setFontPointSize(10)
+        main_layout.addWidget(self.results_text)
+
+    def perform_search(self):
+        query = self.entry.text().strip()
+        num_results_str = self.count_entry.text().strip()
+        self.results_text.clear()
+
+        try:
+            num_results = int(num_results_str)
+            if num_results <= 0:
+                raise ValueError("Number of results must be greater than zero.")
+
+            links = list(query, num_results=num_results)
+
+            actual_num_results = len(links)
+            if actual_num_results > 0:
+                self.results_text.append(f"Showing {min(num_results, actual_num_results)} out of {actual_num_results} results:\n")
+                for idx, link in enumerate(links[:num_results]):
+                    self.insert_link(link)
+            else:
+                self.results_text.append("No results found.\n")
+
+        except ValueError as e:
+            self.results_text.append(f"Error: {e}")
+        except Exception as e:
+            self.results_text.append(f"Error occurred: {e}")
+
+    def insert_link(self, link):
+        display_text = f"[+] Result: {link}\n"
+        self.results_text.moveCursor(QTextCursor.End)
+        self.results_text.insertPlainText(display_text)
+        cursor = self.results_text.textCursor()
+        cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.MoveAnchor, len(display_text))
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        self.results_text.setTextCursor(cursor)
+        self.results_text.setTextColor(Qt.blue)
+        self.results_text.setUnderlineColor(Qt.blue)
+        self.results_text.setOpenExternalLinks(True)
+        self.results_text.setHtml(f'<a href="{link}">{display_text}</a>')
     def show_ftp_options(self):
         ftp_dialog = QDialog(self)
         ftp_dialog.setWindowTitle("FTP Connection Options")
@@ -1037,7 +1116,6 @@ class Window(QMainWindow):
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_ncat())
         layout.addWidget(generate_button)
-
         dialog.exec_()
 
 def main():

@@ -278,13 +278,14 @@ class Window(QMainWindow):
         username_layout.addWidget(username_label)
         username_layout.addWidget(username_input)
         layout.addLayout(username_layout)
-
-        server_layout = QHBoxLayout(dialog)
-        server_label = QLabel("Enter server:")
-        server_input = QLineEdit(dialog)
-        server_layout.addWidget(server_label)
-        server_layout.addWidget(server_input)
-        layout.addLayout(server_layout)
+        
+        server_type_layout = QHBoxLayout()
+        server_type_label = QLabel("Enter Server Type:", dialog)
+        server_type_combo = QComboBox(dialog)
+        server_type_combo.addItems(["Samba Server smb", "FTP Server ftp", "RDP Server rdp", "Mssql Server mssql", "WinRm Server winrm","Ldap Server ldap"])
+        server_type_layout.addWidget(server_type_label)
+        server_type_layout.addWidget(server_type_combo)
+        layout.addLayout(server_type_layout)
 
         ip_layout = QHBoxLayout(dialog)
         ip_label = QLabel("Enter Ip Address:")
@@ -316,13 +317,15 @@ class Window(QMainWindow):
             domain = domain_input.text()
             username = username_input.text()
             password = password_input.text()
-            server = server_input.text()
+            server = server_type_combo.currentText()
+            server = server.split(' ')[2]
+            
             if not domain:
                 command = f"crackmapexec {server} {ip} -u {username} -p {password}"
             else:
                 command = f"crackmapexec {server} {domain}\\{ip} -u {username} -p {password}"
             output_area.append(command)
-            
+
             if not username or not password or not server:
                 QMessageBox.warning(dialog, "Warning", "Please check your credentials")
             return command

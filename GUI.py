@@ -461,26 +461,26 @@ class Window(QMainWindow):
     def show_nikto_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Nikto Options")
-        dialog.setGeometry(100,100,600,500)
+        dialog.setGeometry(100, 100, 600, 500)
 
         layout = QVBoxLayout(dialog)
 
         hostname_layout = QHBoxLayout()
-        hostname_label = QLabel("Hostname:",dialog)
+        hostname_label = QLabel("Hostname:", dialog)
         hostname_input = QLineEdit(dialog)
         hostname_layout.addWidget(hostname_label)
         hostname_layout.addWidget(hostname_input)
         layout.addLayout(hostname_layout)
 
         output_layout = QHBoxLayout()
-        output_label = QLabel("Output File:",dialog)
+        output_label = QLabel("Output File:", dialog)
         output_input = QLineEdit(dialog)
         output_layout.addWidget(output_label)
         output_layout.addWidget(output_input)
         layout.addLayout(output_layout)
 
         port_layout = QHBoxLayout()
-        port_label = QLabel("Specific Port:",dialog)
+        port_label = QLabel("Specific Port:", dialog)
         port_input = QLineEdit(dialog)
         port_layout.addWidget(port_label)
         port_layout.addWidget(port_input)
@@ -493,25 +493,30 @@ class Window(QMainWindow):
         def generate_command_nikto():
             hostname = hostname_input.text()
             output = output_input.text()
-            output = str(output)
             port = port_input.text()
             if not hostname:
-                QMessageBox.warning(dialog,"Please enter hostname for scannig!")
+                QMessageBox.warning(dialog, "Warning", "Please enter hostname for scanning!")
+                return ""
             command = f"nikto -h {hostname} -p {port} -output {output}"
+            output_area.setText(command)
             return command
-        
+
         def run_nikto():
             command = generate_command_nikto()
-            output_area.append(command)
-        gobuster_command = QPushButton("Generate Command",dialog)
-        gobuster_command.clicked.connect(generate_command_nikto)
-        layout.addWidget(gobuster_command)
+            if command:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
 
-        generate_button = QPushButton("Start Nikto", dialog)
-        generate_button.clicked.connect(run_nikto)
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_nikto)
         layout.addWidget(generate_button)
 
+        start_button = QPushButton("Start Nikto", dialog)
+        start_button.clicked.connect(run_nikto)
+        layout.addWidget(start_button)
+
         dialog.exec_()
+
     def show_hydra_options(self):   
         dialog = QDialog(self)
         dialog.setWindowTitle("Hydra Options")

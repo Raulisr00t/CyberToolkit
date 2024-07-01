@@ -63,9 +63,9 @@ class Window(QMainWindow):
 
         self.red_team_tools = [
             ["Nmap", "Hydra", "Gobuster"],
-            ["Wpscan", "Enum4linux", "Searchsploit"],
-            ["Msfvenom", "Curl", "Python3"],
-            ["Havoc", "Sherloc", "Osintagram"]
+            ["CrackMapExec", "Enum4linux", "Searchsploit"],
+            ["Msfvenom", "Curl", "Nikto"],
+            ["Nikto", "Sherloc", "Osintagram"]
         ]
 
         self.blue_team_tools = [
@@ -235,8 +235,10 @@ class Window(QMainWindow):
                 self.show_ftp_options()
             if label_text == "DNS Lookup":
                 self.show_lookup_options()
-            if label_text == "enum4linux":
-                self.shoe_enum_options()
+            if label_text == "Enum4Linux":
+                self.show_enum_options()
+            if label_text == "CrackMapExec":
+                self.show_wp_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -263,6 +265,62 @@ class Window(QMainWindow):
                 os.system(tool_name)
             else:
                 pass #for now
+    def show_crack_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("CrackMapExec options")
+        dialog.setGeometry(100,100,500,500)
+
+        layout = QVBoxLayout(layout)
+
+        username_layout = QHBoxLayout(dialog)
+        username_label = QLabel("Enter Username:")
+        username_input = QLineEdit(dialog)
+        username_layout.addWidget(username_label)
+        username_layout.addWidget(username_input)
+        layout.addLayout(username_layout)
+
+        server_layout = QHBoxLayout(dialog)
+        server_label = QLabel("Enter server:")
+        server_input = QLineEdit(dialog)
+        server_layout.addWidget(server_label)
+        server_layout.addWidget(server_input)
+        layout.addLayout(server_layout)
+
+        ip_layout = QHBoxLayout(dialog)
+        ip_label = QLabel("Enter Ip Address:")
+        ip_input = QLineEdit(dialog)
+        ip_layout.addWidget(ip_label)
+        ip_layout.addWidget(ip_input)
+        layout.addLayout(ip_layout)
+
+        password_layout = QHBoxLayout(dialog)
+        password_label = QLabel("Enter a Password:")
+        password_input = QLineEdit(dialog)
+        password_layout.addWidget(password_label)
+        password_layout.addWidget(password_input)
+        layout.addLayout(password_layout)
+
+        domain_layout = QHBoxLayout(dialog)
+        domain_label = QLabel("Enter a Domain:")
+        domain_input = QLineEdit(dialog)
+        domain_layout.addWidget(domain_label)
+        domain_layout.addWidget(domain_input)
+        layout.addLayout(domain_layout)
+
+        def generate_command_crack():
+            ip = ip_input.text()
+            domain = domain_input.text()
+            username = username_input.text()
+            password = password_input.text()
+            server = server_input.text()
+
+            if not username or not password or not server:
+                QMessageBox.warning("Please check your credentials")
+            
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_crack())
+        layout.addWidget(generate_button)
+        dialog.exec_()
 
     def show_nmap_options(self):
         dialog = QDialog(self)

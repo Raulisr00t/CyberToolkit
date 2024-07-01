@@ -238,7 +238,7 @@ class Window(QMainWindow):
             if label_text == "Enum4Linux":
                 self.show_enum_options()
             if label_text == "CrackMapExec":
-                self.show_wp_options()
+                self.show_crack_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -270,7 +270,7 @@ class Window(QMainWindow):
         dialog.setWindowTitle("CrackMapExec options")
         dialog.setGeometry(100,100,500,500)
 
-        layout = QVBoxLayout(layout)
+        layout = QVBoxLayout(dialog)
 
         username_layout = QHBoxLayout(dialog)
         username_label = QLabel("Enter Username:")
@@ -316,7 +316,7 @@ class Window(QMainWindow):
 
             if not username or not password or not server:
                 QMessageBox.warning("Please check your credentials")
-            
+
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(generate_command_crack())
         layout.addWidget(generate_button)

@@ -504,7 +504,7 @@ class Window(QMainWindow):
             command = generate_command_nikto()
             output_area.append(command)
         gobuster_command = QPushButton("Generate Command",dialog)
-        gobuster_command.clicked.connect(generate_command_nikto())
+        gobuster_command.clicked.connect(generate_command_nikto)
         layout.addWidget(gobuster_command)
 
         generate_button = QPushButton("Start Nikto", dialog)

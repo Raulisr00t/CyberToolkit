@@ -825,7 +825,9 @@ class Window(QMainWindow):
             if num_results <= 0:
                 raise ValueError("Number of results must be greater than zero.")
 
-            links = list(query, num_results=num_results)
+            # Replace list(query, num_results=num_results) with actual search logic
+            # For example, if you have a function that searches and returns links:
+            links = self.search_and_return_links(query, num_results)
 
             actual_num_results = len(links)
             if actual_num_results > 0:
@@ -852,6 +854,7 @@ class Window(QMainWindow):
         self.results_text.setUnderlineColor(Qt.blue)
         self.results_text.setOpenExternalLinks(True)
         self.results_text.setHtml(f'<a href="{link}">{display_text}</a>')
+
     def show_ftp_options(self):
         ftp_dialog = QDialog(self)
         ftp_dialog.setWindowTitle("FTP Connection Options")
@@ -1116,6 +1119,7 @@ class Window(QMainWindow):
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_ncat())
         layout.addWidget(generate_button)
+
         dialog.exec_()
 
 def main():

@@ -381,7 +381,7 @@ class Window(QMainWindow):
         scan_type_layout = QHBoxLayout()
         scan_type_label = QLabel("Scan Type:", dialog)
         scan_type_combo = QComboBox(dialog)
-        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Script Scan (-sC)", "OS Detection (-O)", "Aggressive Scan (-A)"])
+        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Script Scan (-sC)", "OS Detection (-O)", "Aggressive Scan (-A)","Extra Verbosity (-vv)"])
         scan_type_layout.addWidget(scan_type_label)
         scan_type_layout.addWidget(scan_type_combo)
         layout.addLayout(scan_type_layout)
@@ -411,7 +411,8 @@ class Window(QMainWindow):
                 command += f" {url}"
             if ip_address:
                 command += f" {ip_address}"
-
+            if not thread_count:
+                command = command.split("-min-rate")
             output_area.setText(command)
             return command
 

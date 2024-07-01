@@ -231,6 +231,8 @@ class Window(QMainWindow):
                 self.show_ssh_options()
             if label_text == "FTP Connection":
                 self.show_ftp_options()
+            if label_text == "DNS Lookup":
+                self.show_lookup_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -642,6 +644,73 @@ class Window(QMainWindow):
 
         ftp_dialog.setLayout(layout)
         ftp_dialog.exec_()
+
+    def show_lookup_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("DNS Lookup Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        url_layout = QHBoxLayout()
+        url_label = QLabel("Domain:", dialog)
+        url_input = QLineEdit(dialog)
+        url_layout.addWidget(url_label)
+        url_layout.addWidget(url_input)
+        layout.addLayout(url_layout)
+
+        ip_address_layout = QHBoxLayout()
+        ip_address_label = QLabel("IP Address:", dialog)
+        ip_address_input = QLineEdit(dialog)
+        ip_address_layout.addWidget(ip_address_label)
+        ip_address_layout.addWidget(ip_address_input)
+        layout.addLayout(ip_address_layout)
+
+        scan_type_layout = QHBoxLayout()
+        scan_type_label = QLabel("Query Type:", dialog)
+        scan_type_combo = QComboBox(dialog)
+        scan_type_combo.addItems([" IPv4 address (--querytype=A)", "IPv6 address (--querytype=AAAA)", "Hardware Related Information (--querytype==hinfo)", "Mail Server Records (--querytype=MX)", "ALL Availible Records (--querytype=any)"])
+        scan_type_layout.addWidget(scan_type_label)
+        scan_type_layout.addWidget(scan_type_combo)
+        layout.addLayout(scan_type_layout)
+
+        default_scan_layout = QHBoxLayout()
+        default_scan_label = QLabel("Default Type:", dialog)
+        default_scan_yes = QCheckBox("Yes", dialog)
+        default_scan_layout.addWidget(default_scan_label)
+        default_scan_layout.addWidget(default_scan_yes)
+        layout.addLayout(default_scan_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_nmap():
+            url = url_input.text()
+            ip_address = ip_address_input.text()
+            scan_type = scan_type_combo.currentText()
+            s = scan_type.split("(")
+            f = s[1]
+            list = f.split(")")
+            scan = list[0]
+
+            version_scan = f"nslookup --querytype=A" if default_scan_yes.isChecked() else ""
+            if url:
+                command = f"nslookup {url} --querytype=={scan_type_combo}"
+                output_area.setText(command)
+            else:
+                command = f"nslookup {ip_address} {scan}"
+        def run_nmap():
+            command = generate_command_nmap()
+            answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+        
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(run_nmap)
+        layout.addWidget(generate_button)
+        dialog.exec_()
 
     def show_ssh_options(self):
         ssh_dialog = QDialog(self)

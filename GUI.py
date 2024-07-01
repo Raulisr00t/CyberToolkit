@@ -381,7 +381,7 @@ class Window(QMainWindow):
         scan_type_layout = QHBoxLayout()
         scan_type_label = QLabel("Scan Type:", dialog)
         scan_type_combo = QComboBox(dialog)
-        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Service Version Detection (-sV)", "OS Detection (-O)", "Aggressive Scan (-A)"])
+        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Script Scan (-sC)", "OS Detection (-O)", "Aggressive Scan (-A)"])
         scan_type_layout.addWidget(scan_type_label)
         scan_type_layout.addWidget(scan_type_combo)
         layout.addLayout(scan_type_layout)
@@ -402,14 +402,18 @@ class Window(QMainWindow):
             thread_count = thread_count_input.text()
             ip_address = ip_address_input.text()
             scan_type = scan_type_combo.currentText()
-            s = scan_type.split("(")
-            f = s[1]
-            list = f.split(")")
-            scan = list[0]
+            scan = scan_type.split("(")[1].split(")")[0]  # Correctly extract the scan type
 
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
-            command = f"nmap {url} {ip_address} {scan} {version_scan} --min-rate={thread_count}"
+
+            command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
+            if url:
+                command += f" {url}"
+            if ip_address:
+                command += f" {ip_address}"
+
             output_area.setText(command)
+            return command
 
         def run_nmap():
             command = generate_command_nmap()
@@ -417,10 +421,14 @@ class Window(QMainWindow):
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
-        
+
         generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(run_nmap)
+        generate_button.clicked.connect(generate_command_nmap)
         layout.addWidget(generate_button)
+        run_button = QPushButton("Run Command", dialog)
+        run_button.clicked.connect(run_nmap)
+        layout.addWidget(run_button)
+
         dialog.exec_()
 
     def show_enum_options(self):

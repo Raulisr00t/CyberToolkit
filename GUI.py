@@ -235,6 +235,8 @@ class Window(QMainWindow):
                 self.show_ftp_options()
             if label_text == "DNS Lookup":
                 self.show_lookup_options()
+            if label_text == "enum4linux":
+                self.shoe_enum_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -335,6 +337,41 @@ class Window(QMainWindow):
         layout.addWidget(generate_button)
         dialog.exec_()
 
+    def show_enum_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Enum3linux Options")
+        dialog.setGeometry(100,100,200,300)
+
+        layout = QVBoxLayout(dialog)
+
+        ip_layout = QVBoxLayout()
+        ip_lable = QLabel("IP Address:",dialog)
+        ip_input = QLineEdit(dialog)
+        ip_layout.addWidget(ip_lable)
+        ip_layout.addWidget(ip_input)
+        layout.addLayout(layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_enum():
+            ip = ip_input.text()
+            command = f" enum4linux {ip}"
+            output_area.append(command)
+        
+        def run_enum():
+            command = generate_command_enum()
+            result = subprocess.getoutput(command)
+            output_area.append("\n" + result)
+            return result
+        
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(run_enum)
+        layout.addWidget(generate_button)
+
+        dialog.exec_()
+        
     def show_hydra_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Hydra Options")
@@ -539,7 +576,7 @@ class Window(QMainWindow):
                 command = f"curl {url}"
                 output_area.setText(command)
 
-        def run_nmap():
+        def run_curl():
             command = generate_command_curl()
             answer = QMessageBox.question(curl_dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
@@ -547,7 +584,7 @@ class Window(QMainWindow):
                 output_area.append("\n" + result)
         
         generate_button = QPushButton("Generate Command", curl_dialog)
-        generate_button.clicked.connect(run_nmap)
+        generate_button.clicked.connect(run_curl)
         layout.addWidget(generate_button)
         curl_dialog.exec_()
 

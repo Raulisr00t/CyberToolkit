@@ -221,6 +221,8 @@ class Window(QMainWindow):
                 self.show_nmap_options()
             if label_text == "Hydra":
                 self.show_hydra_options()
+            if label_text == "Nikto":
+                self.show_nikto_options()
             if label_text == "Curl":
                 self.show_curl_options()
             if label_text == "Netcat Connection":

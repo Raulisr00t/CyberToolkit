@@ -313,13 +313,26 @@ class Window(QMainWindow):
             username = username_input.text()
             password = password_input.text()
             server = server_input.text()
+            command = f"crackmapexec {server} {ip} -u {username} -p {password}"
 
             if not username or not password or not server:
-                QMessageBox.warning("Please check your credentials")
+                QMessageBox.warning(dialog, "Warning", "Please check your credentials")
+            return command
+        
+        def run_crack():
+            command = generate_command_crack()
+            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start CrackMapExec? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                result.append("\n" + result)
 
         generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(generate_command_crack())
+        generate_button.clicked.connect(generate_command_crack)
         layout.addWidget(generate_button)
+        run_button = QPushButton("Run Command", dialog)
+        run_button.clicked.connect(run_crack)
+        layout.addWidget(run_button)
+
         dialog.exec_()
 
     def show_nmap_options(self):

@@ -307,21 +307,29 @@ class Window(QMainWindow):
         domain_layout.addWidget(domain_input)
         layout.addLayout(domain_layout)
 
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
         def generate_command_crack():
             ip = ip_input.text()
             domain = domain_input.text()
             username = username_input.text()
             password = password_input.text()
             server = server_input.text()
-            command = f"crackmapexec {server} {ip} -u {username} -p {password}"
-
+            if not domain:
+                command = f"crackmapexec {server} {ip} -u {username} -p {password}"
+            else:
+                command = f"crackmapexec {server} {domain}\\{ip} -u {username} -p {password}"
+            output_area.append(command)
+            
             if not username or not password or not server:
                 QMessageBox.warning(dialog, "Warning", "Please check your credentials")
             return command
         
         def run_crack():
             command = generate_command_crack()
-            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start CrackMapExec? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(dialog, "Run CrackMapExec", "Do you want to start CrackMapExec? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 result.append("\n" + result)

@@ -491,79 +491,83 @@ class Window(QMainWindow):
                 command = ""
 
     def show_reg_options(self):
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Registry Editor Options")
-        dialog.setGeometry(100, 100, 600, 500)
+        if os_type.lower() =="windows":
+            dialog = QDialog(self)
+            dialog.setWindowTitle("Registry Editor Options")
+            dialog.setGeometry(100, 100, 600, 500)
 
-        layout = QVBoxLayout()
+            layout = QVBoxLayout()
 
-        query_label = QLabel("Enter Registry Key or Path:", dialog)
-        query_input = QLineEdit(dialog)
-        layout.addWidget(query_label)
-        layout.addWidget(query_input)
+            query_label = QLabel("Enter Registry Key or Path:", dialog)
+            query_input = QLineEdit(dialog)
+            layout.addWidget(query_label)
+            layout.addWidget(query_input)
 
-        operation_layout = QHBoxLayout()
-        operation_label = QLabel("Operation:", dialog)
-        operation_combo = QComboBox(dialog)
-        operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Edit (reg edit)", "Save (reg save)"," Delete (reg delete)","Copy (reg copy)"])
-        operation_layout.addWidget(operation_label)
-        operation_layout.addWidget(operation_combo)
-        layout.addLayout(operation_layout)
+            operation_layout = QHBoxLayout()
+            operation_label = QLabel("Operation:", dialog)
+            operation_combo = QComboBox(dialog)
+            operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Edit (reg edit)", "Save (reg save)"," Delete (reg delete)","Copy (reg copy)"])
+            operation_layout.addWidget(operation_label)
+            operation_layout.addWidget(operation_combo)
+            layout.addLayout(operation_layout)
 
-        priv_scan_layout = QHBoxLayout()
-        priv_scan_label = QLabel("Run as admin:", dialog)
-        priv_scan_checkbox = QCheckBox("Yes", dialog)
-        priv_scan_layout.addWidget(priv_scan_label)
-        priv_scan_layout.addWidget(priv_scan_checkbox)
-        layout.addLayout(priv_scan_layout)
+            priv_scan_layout = QHBoxLayout()
+            priv_scan_label = QLabel("Run as admin:", dialog)
+            priv_scan_checkbox = QCheckBox("Yes", dialog)
+            priv_scan_layout.addWidget(priv_scan_label)
+            priv_scan_layout.addWidget(priv_scan_checkbox)
+            layout.addLayout(priv_scan_layout)
 
-        output_area = QTextEdit(dialog)
-        output_area.setReadOnly(True)
-        layout.addWidget(output_area)
+            output_area = QTextEdit(dialog)
+            output_area.setReadOnly(True)
+            layout.addWidget(output_area)
 
-        instruction_label = QLabel("<b>Example:(Path or Registry)</b> HKCU\\Software\\MyApp", dialog)
-        layout.addWidget(instruction_label)
+            instruction_label = QLabel("<b>Example:(Path or Registry)</b> HKCU\\Software\\MyApp", dialog)
+            layout.addWidget(instruction_label)
 
-        def generate_command():
-            query = query_input.text()
-            operation = operation_combo.currentText().split()[0].lower()
-            global run_as_admin
-            run_as_admin = priv_scan_checkbox.isChecked()
+            def generate_command():
+                query = query_input.text()
+                operation = operation_combo.currentText().split()[0].lower()
+                global run_as_admin
+                run_as_admin = priv_scan_checkbox.isChecked()
 
-            if operation == "query":
-                command = f"reg query {query}"
-            elif operation == "add":
-                # Example: reg add HKCU\\Software\\MyApp /v SomeValue /t REG_SZ /d "My Data"
-                command = f"reg add {query}"  # Replace with appropriate parameters
-            elif operation == "edit":
-                # Example: reg edit HKCU\\Software\\MyApp /v SomeValue /t REG_SZ /d "Updated Data"
-                command = f"reg edit {query}"  # Replace with appropriate parameters
-            else:
-                command = ""
-
-            output_area.setText(command)
-
-            return command
-
-        def run_command():
-            command = generate_command()
-            if command:
-                if run_as_admin:
-                    pyuac.runAsAdmin(command)
+                if operation == "query":
+                    command = f"reg query {query}"
+                elif operation == "add":
+                    # Example: reg add HKCU\\Software\\MyApp /v SomeValue /t REG_SZ /d "My Data"
+                    command = f"reg add {query}"  # Replace with appropriate parameters
+                elif operation == "edit":
+                    # Example: reg edit HKCU\\Software\\MyApp /v SomeValue /t REG_SZ /d "Updated Data"
+                    command = f"reg edit {query}"  # Replace with appropriate parameters
                 else:
-                    result = subprocess.getoutput(command)
-                    output_area.append("\n" + result)
+                    command = ""
 
-        generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(generate_command)
-        layout.addWidget(generate_button)
+                output_area.setText(command)
 
-        run_button = QPushButton("Run Command", dialog)
-        run_button.clicked.connect(run_command)
-        layout.addWidget(run_button)
+                return command
 
-        dialog.setLayout(layout)
-        dialog.exec_()
+            def run_command():
+                command = generate_command()
+                if command:
+                    if run_as_admin:
+                        pyuac.runAsAdmin(command)
+                    else:
+                        result = subprocess.getoutput(command)
+                        output_area.append("\n" + result)
+
+            generate_button = QPushButton("Generate Command", dialog)
+            generate_button.clicked.connect(generate_command)
+            layout.addWidget(generate_button)
+
+            run_button = QPushButton("Run Command", dialog)
+            run_button.clicked.connect(run_command)
+            layout.addWidget(run_button)
+
+            dialog.setLayout(layout)
+            dialog.exec_()
+            
+        else:
+            QMessageBox.information(dialog,"Your OS is not Windows!")
 
     def show_enum_options(self):
         dialog = QDialog(self)

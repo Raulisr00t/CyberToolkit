@@ -246,6 +246,8 @@ class Window(QMainWindow):
                 self.show_enum_options()
             if label_text == "CrackMapExec":
                 self.show_crack_options()
+            if label_text == "Snort":
+                self.show_snort_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -1306,8 +1308,8 @@ class Window(QMainWindow):
             if command:
                 answer = QMessageBox.question(dialog, "Connect Netcat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
                 if answer == QMessageBox.Yes:
-                    result = subprocess.run(command,shell=True)
-                    output_area.append("\n" + result)
+                    subprocess.run(command,shell=True)
+                    #output_area.append("\n" + result)
             
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(run_ncat)

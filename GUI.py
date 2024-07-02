@@ -70,8 +70,8 @@ class Window(QMainWindow):
         ]
 
         self.blue_team_tools = [
-            ["Feroxbuster", "Wireshark", "Visual Studio Code"],
-            ["Visual Studio", "Bettercap", "Responder"]
+            ["Snort", "Winlog", "Zeek"],
+            ["Dcfldd", "TcpDump", "KAPE"]
         ]
 
         self.general_team_tools = [

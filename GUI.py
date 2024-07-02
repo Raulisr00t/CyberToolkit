@@ -1306,7 +1306,7 @@ class Window(QMainWindow):
             if command:
                 answer = QMessageBox.question(dialog, "Connect Netcat", "Do you want to create connection? (Y/N)", QMessageBox.Yes | QMessageBox.No)
                 if answer == QMessageBox.Yes:
-                    result = subprocess.getoutput(command)
+                    result = subprocess.run(command,shell=True)
                     output_area.append("\n" + result)
             
         generate_button = QPushButton("Generate Command", dialog)

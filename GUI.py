@@ -796,110 +796,77 @@ class Window(QMainWindow):
             QMessageBox.warning("Your wordlist path is incorrect,Please check again")
 
     def show_rdp_options(self):
+        global os_type
         rdp_dialog = QDialog(self)
         rdp_dialog.setWindowTitle("RDP Options")
-        rdp_dialog.setGeometry(100,100,600,500)
-        global os_type
-        os_type = platform.uname().system
-        if os_type == "Linux" or os_type == "Darwin":
-            layout = QVBoxLayout(rdp_dialog)
+        rdp_dialog.setGeometry(100, 100, 600, 500)
+        
+        layout = QVBoxLayout(rdp_dialog)
 
-            ip_layout = QHBoxLayout()
-            ip_label = QLabel("Enter ip address:")
-            ip_input = QLineEdit(rdp_dialog)
-            ip_layout.addWidget(ip_label)
-            ip_layout.addWidget(ip_input)
+        ip_layout = QHBoxLayout()
+        ip_label = QLabel("Enter IP address:", rdp_dialog)
+        ip_input = QLineEdit(rdp_dialog)
+        ip_layout.addWidget(ip_label)
+        ip_layout.addWidget(ip_input)
+        layout.addLayout(ip_layout)
 
-            layout.addLayout(ip_layout)
+        username_layout = QHBoxLayout()
+        username_label = QLabel("Enter username:", rdp_dialog)
+        username_input = QLineEdit(rdp_dialog)
+        username_layout.addWidget(username_label)
+        username_layout.addWidget(username_input)
+        layout.addLayout(username_layout)
 
-            username_layout = QHBoxLayout()
-            username_label = QLabel("Enter username:")
-            username_input = QLineEdit(rdp_dialog)
-            username_layout.addWidget(username_label)
-            username_layout.addWidget(username_input)
+        password_layout = QHBoxLayout()
+        password_label = QLabel("Enter password:", rdp_dialog)
+        password_input = QLineEdit(rdp_dialog)
+        password_layout.addWidget(password_label)
+        password_layout.addWidget(password_input)
+        layout.addLayout(password_layout)
+
+        output_area = QTextEdit(rdp_dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_rdp():
+            ip = ip_input.text()
+            username = username_input.text()
+            password = password_input.text()
+
+            if not ip or not username or not password:
+                QMessageBox.warning(rdp_dialog, "Warning", "Please fill in all fields.")
+                return ""
             
-            layout.addLayout(username_layout)
-
-            password_layout = QHBoxLayout()
-            password_label = QLabel("Enter password:")
-            password_input = QLineEdit(rdp_dialog)
-            password_layout.addWidget(password_label)
-            password_layout.addWidget(password_input)
-
-            layout.addLayout(password_layout)
-
-            output_area = QTextEdit(rdp_dialog)
-            output_area.setReadOnly(True)
-            layout.addWidget(output_area)
-
-            def generate_command_rdp():
-                ip = ip_input.text()
-                username = username_input.text()
-                password = password_input.text()
-
-                if not username or not ip or not password:
-                    QMessageBox.warning(rdp_dialog,"Please check credentials")
-                command = f"xfreedrp /v:{ip} /u:{username} /p:{password}"
-                output_area.append(command)
-                return command
-            
-            def run_rdp():
-                command = generate_command_rdp()
-                answer = QMessageBox.question(rdp_dialog, "Run RDP", "Do you want to start RDP? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-                if answer == QMessageBox.Yes:
-                    result = subprocess.getoutput(command)
-                    result.append("\n" + result)
-
-            generate_button = QPushButton("Generate Command", rdp_dialog)
-            generate_button.clicked.connect(generate_command_rdp)
-            layout.addWidget(generate_button)
-            run_button = QPushButton("Run Command", rdp_dialog)
-            run_button.clicked.connect(run_rdp)
-            layout.addWidget(run_button)
-
-            rdp_dialog.exec_()
-
-        else:
-            rdp_dialog = QDialog(self)
-            rdp_dialog.setWindowTitle("RDP Options")
-            rdp_dialog.setGeometry(100,100,600,500)
-            
-            layout = QVBoxLayout(rdp_dialog)
-
-            ip_layout = QHBoxLayout()
-            ip_label = QLabel("Enter ip address:")
-            ip_input = QLineEdit(rdp_dialog)
-            ip_layout.addWidget(ip_label)
-            ip_layout.addWidget(ip_input)
-
-            output_area = QTextEdit(rdp_dialog)
-            output_area.setReadOnly(True)
-            layout.addWidget(output_area)
-
-            def generate_command_rdp():
-                ip = ip_input.text()
-
-                if not ip:
-                    QMessageBox.warning(rdp_dialog,"Please check IP address")
+            os_type = platform.uname().system
+            if os_type == "Linux" or os_type == "Darwin":
+                command = f"xfreerdp /v:{ip} /u:{username} /p:{password}"
+            elif os_type == "Windows":
                 command = f"mstsc /v:{ip}"
-                output_area.append(command)
-                return command
-            
-            def run_rdp():
-                command = generate_command_rdp()
+            else:
+                QMessageBox.warning(rdp_dialog, "Unsupported OS", "RDP is not supported on this operating system.")
+                return ""
+
+            output_area.setText(command)
+            return command
+
+        def run_rdp():
+            command = generate_command_rdp()
+            if command:
                 answer = QMessageBox.question(rdp_dialog, "Run RDP", "Do you want to start RDP? (Y/N)", QMessageBox.Yes | QMessageBox.No)
                 if answer == QMessageBox.Yes:
                     result = subprocess.getoutput(command)
-                    result.append("\n" + result)
+                    output_area.append("\n" + result)
 
-            generate_button = QPushButton("Generate Command", rdp_dialog)
-            generate_button.clicked.connect(generate_command_rdp)
-            layout.addWidget(generate_button)
-            run_button = QPushButton("Run Command", rdp_dialog)
-            run_button.clicked.connect(run_rdp)
-            layout.addWidget(run_button)
+        generate_button = QPushButton("Generate Command", rdp_dialog)
+        generate_button.clicked.connect(generate_command_rdp)
+        layout.addWidget(generate_button)
 
-            rdp_dialog.exec_()
+        run_button = QPushButton("Run Command", rdp_dialog)
+        run_button.clicked.connect(run_rdp)
+        layout.addWidget(run_button)
+
+        rdp_dialog.setLayout(layout)
+        rdp_dialog.exec_()
 
     def show_curl_options(self):
         curl_dialog = QDialog(self)

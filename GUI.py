@@ -17,7 +17,7 @@ import urllib3
 from  urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import warnings
-import googleapiclient,googlesearch
+import googlesearch
 import pyuac
 
 def background():
@@ -940,9 +940,29 @@ class Window(QMainWindow):
                         if request_type == "DELETE":
                             command = f"curl -X DELETE {url} {data}"
                 else:
-                    pass
-                server_info = "" if server_info_yes.isChecked() else ""
-                command = f"curl {url}"
+                    if not request_type == "GET":
+                        data_layout = QHBoxLayout()
+                        data_label = QLabel("Enter Data:")
+                        data_input = QLineEdit(curl_dialog)
+                        data_layout.addWidget(data_label)
+                        data_layout.addWidget(data_input)
+                        
+                        data = data_input.text()
+
+                        if request_type == "POST":
+                            command = f"curl -X POST {url} -d {data} -H application/json"
+                        if request_type == "PUT":
+                            command = f"curl -X PUT {url} -d {data} -H application/json"
+                        if request_type == "OPTIONS":
+                            command = f"curl -X OPTIONS {url} -H Access-Control-Request-Method:content-type {data}"
+                        if request_type == "DELETE":
+                            command = f"curl -X DELETE {url} {data}"
+                            
+                server_info = "-IL" if server_info_yes.isChecked() else ""
+
+                if server_info:
+                    command = f"curl {url}"
+                    command += "-IL"
                 output_area.setText(command)
 
         def run_curl():

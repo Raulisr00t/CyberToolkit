@@ -1289,7 +1289,7 @@ class Window(QMainWindow):
 
             if listener:
                 if shell:
-                    command = f"ncat -l -v -p {port} -e '{shell}'"
+                    command = f"ncat -l -v -p {port} -e {shell}"
                 else:
                     command = f"ncat -l -v -p {port}"
             else:

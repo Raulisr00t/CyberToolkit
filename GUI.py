@@ -497,7 +497,7 @@ class Window(QMainWindow):
 
         layout = QVBoxLayout()
 
-        query_layout = QVBoxLayout()
+        query_layout = QHBoxLayout()
         query_label = QLabel("Query Type:")
         query_input = QLineEdit(dialog)
         query_layout.addWidget(query_label)
@@ -521,13 +521,13 @@ class Window(QMainWindow):
             if priv:
                 command = f"reg query {query}"
                 output_area.append(command)
+                return command  # Return the command string
             else:
-                pyuac.runAsAdmin("cybertoolkit.exe")
-                
+                pyuac.runAsAdmin("pthon3 cybertoolkiy.py")
+
         def run_reg():
             command = generate_command_reg()
-            answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-            if answer == QMessageBox.Yes:
+            if command:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)
 

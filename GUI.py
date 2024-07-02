@@ -5,7 +5,7 @@ import requests
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy,
     QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog,
-    QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser 
+    QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser
 )
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush,QFont,QTextCursor
 from PyQt5.QtCore import Qt
@@ -439,7 +439,7 @@ class Window(QMainWindow):
         layout.addWidget(run_button)
 
         dialog.exec_()
-        
+
         def show_volatility_options(self):
             dialog = QDialog(self)
             dialog.setWindowTitle("Volatility Options")
@@ -481,7 +481,12 @@ class Window(QMainWindow):
             output_area = QTextEdit(dialog)
             output_area.setReadOnly(True)
             layout.addWidget(output_area)
-    
+
+            def generate_command_volatility():
+                domain = python_input.text()
+                file_path = file_path_input.text()
+                command = ""
+                    
     def show_enum_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Enum4linux Options")

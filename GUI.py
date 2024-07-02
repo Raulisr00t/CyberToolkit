@@ -436,7 +436,7 @@ class Window(QMainWindow):
     
     def show_enum_options(self):
         dialog = QDialog(self)
-        dialog.setWindowTitle("Enum3linux Options")
+        dialog.setWindowTitle("Enum4linux Options")
         dialog.setGeometry(100,100,200,300)
 
         layout = QVBoxLayout(dialog)
@@ -724,6 +724,10 @@ class Window(QMainWindow):
             rdp_dialog.exec_()
 
         else:
+            rdp_dialog = QDialog(self)
+            rdp_dialog.setWindowTitle("RDP Options")
+            rdp_dialog.setGeometry(100,100,600,500)
+            
             layout = QVBoxLayout(rdp_dialog)
 
             ip_layout = QHBoxLayout()
@@ -1291,7 +1295,7 @@ class Window(QMainWindow):
                     output_area.append("\n" + result)
             
         generate_button = QPushButton("Generate Command", dialog)
-        generate_button.clicked.connect(run_ncat())
+        generate_button.clicked.connect(run_ncat)
         layout.addWidget(generate_button)
 
         dialog.exec_()

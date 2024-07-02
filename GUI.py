@@ -723,6 +723,44 @@ class Window(QMainWindow):
 
             rdp_dialog.exec_()
 
+        else:
+            layout = QVBoxLayout(rdp_dialog)
+
+            ip_layout = QHBoxLayout()
+            ip_label = QLabel("Enter ip address:")
+            ip_input = QLineEdit(rdp_dialog)
+            ip_layout.addWidget(ip_label)
+            ip_layout.addWidget(ip_input)
+
+            output_area = QTextEdit(rdp_dialog)
+            output_area.setReadOnly(True)
+            layout.addWidget(output_area)
+
+            def generate_command_rdp():
+                ip = ip_input.text()
+
+                if not ip:
+                    QMessageBox.warning(rdp_dialog,"Please check IP address")
+                command = f"mstsc /v:{ip}"
+                output_area.append(command)
+                return command
+            
+            def run_rdp():
+                command = generate_command_rdp()
+                answer = QMessageBox.question(rdp_dialog, "Run RDP", "Do you want to start RDP? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    result.append("\n" + result)
+
+            generate_button = QPushButton("Generate Command", rdp_dialog)
+            generate_button.clicked.connect(generate_command_rdp)
+            layout.addWidget(generate_button)
+            run_button = QPushButton("Run Command", rdp_dialog)
+            run_button.clicked.connect(run_rdp)
+            layout.addWidget(run_button)
+
+            rdp_dialog.exec_()
+
     def show_curl_options(self):
         curl_dialog = QDialog(self)
         curl_dialog.setWindowTitle("Curl Options")

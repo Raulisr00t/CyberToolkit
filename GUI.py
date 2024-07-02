@@ -521,7 +521,7 @@ class Window(QMainWindow):
         output_area.setReadOnly(True)
         layout.addWidget(output_area)
 
-        instruction_label = QLabel("<b>Example:</b> HKCU\\Software\\MyApp", dialog)
+        instruction_label = QLabel("<b>Example:(Path or Registry)</b> HKCU\\Software\\MyApp", dialog)
         layout.addWidget(instruction_label)
 
         def generate_command():

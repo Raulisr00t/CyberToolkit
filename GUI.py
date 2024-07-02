@@ -1294,10 +1294,7 @@ class Window(QMainWindow):
                 else:
                     command = f"ncat -l -v -p {port}"
             else:
-                if shell:
-                    command = f"ncat {ip} {port} -e '{shell}'"
-                else:
-                    command = f"ncat {ip} {port}"
+                command = f"ncat {ip} {port}"
 
             output_area.setText(command)
             return command

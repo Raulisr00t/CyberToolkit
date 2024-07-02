@@ -497,31 +497,32 @@ class Window(QMainWindow):
 
         layout = QVBoxLayout()
 
-        query_layout = QHBoxLayout()
-        query_label = QLabel("Query Type:")
-        query_input = QLineEdit()
-        query_layout.addWidget(query_label)
-        query_layout.addWidget(query_input)
-        layout.addLayout(query_layout)
+        query_label = QLabel("Enter Registry Key or Path:", dialog)
+        query_input = QLineEdit(dialog)
+        layout.addWidget(query_label)
+        layout.addWidget(query_input)
 
         operation_layout = QHBoxLayout()
-        operation_label = QLabel("Operation:")
-        operation_combo = QComboBox()
+        operation_label = QLabel("Operation:", dialog)
+        operation_combo = QComboBox(dialog)
         operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Edit (reg edit)"])
         operation_layout.addWidget(operation_label)
         operation_layout.addWidget(operation_combo)
         layout.addLayout(operation_layout)
 
         priv_scan_layout = QHBoxLayout()
-        priv_scan_label = QLabel("Run as admin:")
-        priv_scan_checkbox = QCheckBox("Yes")
+        priv_scan_label = QLabel("Run as admin:", dialog)
+        priv_scan_checkbox = QCheckBox("Yes", dialog)
         priv_scan_layout.addWidget(priv_scan_label)
         priv_scan_layout.addWidget(priv_scan_checkbox)
         layout.addLayout(priv_scan_layout)
 
-        output_area = QTextEdit()
+        output_area = QTextEdit(dialog)
         output_area.setReadOnly(True)
         layout.addWidget(output_area)
+
+        instruction_label = QLabel("<b>Example:</b> HKCU\\Software\\MyApp", dialog)
+        layout.addWidget(instruction_label)
 
         def generate_command():
             query = query_input.text()
@@ -553,11 +554,11 @@ class Window(QMainWindow):
                     result = subprocess.getoutput(command)
                     output_area.append("\n" + result)
 
-        generate_button = QPushButton("Generate Command")
+        generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(generate_command)
         layout.addWidget(generate_button)
 
-        run_button = QPushButton("Run Command")
+        run_button = QPushButton("Run Command", dialog)
         run_button.clicked.connect(run_command)
         layout.addWidget(run_button)
 

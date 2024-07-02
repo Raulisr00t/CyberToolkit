@@ -5,7 +5,7 @@ import requests
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy,
     QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog,
-    QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser
+    QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser 
 )
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush,QFont,QTextCursor
 from PyQt5.QtCore import Qt

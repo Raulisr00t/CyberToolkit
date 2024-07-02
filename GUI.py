@@ -71,7 +71,7 @@ class Window(QMainWindow):
 
         self.blue_team_tools = [
             ["Snort", "Winlog", "Zeek"],
-            ["Dcfldd", "TcpDump", "KAPE"]
+            ["Dcfldd", "TcpDump", "Registry Editor"]
         ]
 
         self.general_team_tools = [
@@ -250,6 +250,8 @@ class Window(QMainWindow):
                 self.show_snort_options()
             if label_text == "Volatility":
                 self.show_volatility_options()
+            if label_text == "Registry Editor":
+                self.show_reg_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -486,7 +488,28 @@ class Window(QMainWindow):
                 domain = python_input.text()
                 file_path = file_path_input.text()
                 command = ""
-                    
+
+    def show_reg_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Registry Editor Options")
+        dialog.setGeometry(100,100,600,500)
+
+        layout = QVBoxLayout()
+
+        query_layout = QVBoxLayout()
+        query_label = QLabel("Query Type:")
+        query_input = QLineEdit(dialog)
+        query_layout.addWidget(query_label)
+        query_layout.addWidget(query_input)
+        layout.addLayout(layout)
+
+        priv_scan_layout = QHBoxLayout()
+        priv_scan_label = QLabel("Version Scan:", dialog)
+        priv_scan_yes = QCheckBox("Yes", dialog)
+        priv_scan_layout.addWidget(priv_scan_label)
+        priv_scan_layout.addWidget(priv_scan_yes)
+        layout.addLayout(priv_scan_layout)
+
     def show_enum_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Enum4linux Options")
@@ -680,6 +703,7 @@ class Window(QMainWindow):
         wordlist_layout = QHBoxLayout()
         wordlist_label = QLabel("Wordlist:", dialog)
         wordlist_input = QLineEdit(dialog)
+
         if os.path.exists(wordlist_input):
             wordlist_layout.addWidget(wordlist_label)
             wordlist_layout.addWidget(wordlist_input)
@@ -880,7 +904,7 @@ class Window(QMainWindow):
                         if request_type == "POST":
                             command = f"curl -X POST {url} -d {data} -H application/json"
                         if request_type == "PUT":
-                            command = f"curl -X PUT {url} -d {data} -h application/json"
+                            command = f"curl -X PUT {url} -d {data} -H application/json"
                         if request_type == "OPTIONS":
                             command = f"curl -X OPTIONS {url} -H Access-Control-Request-Method:content-type {data}"
                         if request_type == "DELETE":

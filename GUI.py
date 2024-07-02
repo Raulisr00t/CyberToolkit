@@ -272,6 +272,7 @@ class Window(QMainWindow):
                 os.system(tool_name)
             else:
                 pass #for now
+
     def show_crack_options(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("CrackMapExec options")
@@ -591,7 +592,7 @@ class Window(QMainWindow):
             verbose = "-V" if verbose_yes.isChecked() else ""
             if verbose:
                 command = f"hydra -l {username} -p {password} {server+"://"+server_ip+":"+port} -V" 
-        
+
         def run_hydra():
             command = generate_command_hydra()
             answer = QMessageBox.question(dialog, "Run Hydra", "Do you want to do brute-force? (Y/N)", QMessageBox.Yes | QMessageBox.No)
@@ -1287,14 +1288,14 @@ class Window(QMainWindow):
             if not ip or not port:
                 QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and port.")
                 return ""
-
+            command = f"ncat "
             if listener:
                 if shell:
-                    command = f"ncat -l -v -p {port} -e {shell}"
+                    command += f"-l -v -p {port} -e {shell}"
                 else:
-                    command = f"ncat -l -v -p {port}"
+                    command = f"-l -v -p {port}"
             else:
-                command = f"ncat {ip} {port}"
+                command = f"{ip} {port}"
 
             output_area.setText(command)
             return command

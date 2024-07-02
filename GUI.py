@@ -552,7 +552,7 @@ class Window(QMainWindow):
         layout.addLayout(password_layout)
 
         server_layout = QHBoxLayout()
-        server_label = QLabel("Enter Server:",dialog)
+        server_label = QLabel("Enter Target Server:",dialog)
         server_input = QLineEdit(dialog)
         server_layout.addWidget(server_label)
         server_layout.addWidget(server_input)
@@ -1288,14 +1288,15 @@ class Window(QMainWindow):
             if not ip or not port:
                 QMessageBox.warning(dialog, "Input Error", "Please enter both IP address and port.")
                 return ""
+            
             command = f"ncat "
             if listener:
                 if shell:
                     command += f"-l -v -p {port} -e {shell}"
                 else:
-                    command = f"-l -v -p {port}"
+                    command += f"-l -v -p {port}"
             else:
-                command = f"{ip} {port}"
+                command += f"{ip} {port}"
 
             output_area.setText(command)
             return command

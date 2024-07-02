@@ -506,7 +506,7 @@ class Window(QMainWindow):
             operation_layout = QHBoxLayout()
             operation_label = QLabel("Operation:", dialog)
             operation_combo = QComboBox(dialog)
-            operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Edit (reg edit)", "Save (reg save)"," Delete (reg delete)","Copy (reg copy)"])
+            operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Save (reg save)"," Delete (reg delete)","Copy (reg copy)"])
             operation_layout.addWidget(operation_label)
             operation_layout.addWidget(operation_combo)
             layout.addLayout(operation_layout)
@@ -565,7 +565,7 @@ class Window(QMainWindow):
 
             dialog.setLayout(layout)
             dialog.exec_()
-            
+
         else:
             QMessageBox.information(dialog,"Your OS is not Windows!")
 

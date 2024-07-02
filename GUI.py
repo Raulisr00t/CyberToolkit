@@ -248,6 +248,8 @@ class Window(QMainWindow):
                 self.show_crack_options()
             if label_text == "Snort":
                 self.show_snort_options()
+            if label_text == "Volatility":
+                self.show_volatility_options()
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -437,6 +439,48 @@ class Window(QMainWindow):
         layout.addWidget(run_button)
 
         dialog.exec_()
+        
+        def show_volatility_options(self):
+            dialog = QDialog(self)
+            dialog.setWindowTitle("Volatility Options")
+            dialog.setGeometry(100,100,600,500)
+            
+            layout = QVBoxLayout(dialog)
+            
+            python_layout = QHBoxLayout()
+            python_label = QLabel("Domain:", dialog)
+            python_input = QLineEdit(dialog)
+            python_layout.addWidget(python_label)
+            python_layout.addWidget(python_input)
+            layout.addLayout(python_layout)
+
+            volatility_path_layout = QHBoxLayout()
+            volatility_path_label = QLabel("volatility path:", dialog)
+            volatility_path_input = QLineEdit(dialog)
+            volatility_path_layout.addWidget(volatility_path_label)
+            volatility_path_layout.addWidget(volatility_path_input)
+
+            layout.addLayout(volatility_path_layout)
+
+            file_path_layout = QHBoxLayout()
+            file_path_label = QLabel("IP Address:", dialog)
+            file_path_input = QLineEdit(dialog)
+            file_path_layout.addWidget(file_path_label)
+            file_path_layout.addWidget(file_path_input)
+
+            layout.addLayout(file_path_layout)
+
+            volatility_options_layout = QHBoxLayout()
+            volatility_options_label = QLabel("Scan Type:", dialog)
+            volatility_options_combo = QComboBox(dialog)
+            volatility_options_combo.addItems(["linux.pslist", " linux.pstree", "linux.lsmod", "linux.netstat", "linux.bash","windows.pslist","windows.pstree","windows.filescan","windows.cmdline","windows.netscan"])
+            volatility_options_layout.addWidget(volatility_options_label)
+            volatility_options_layout.addWidget(volatility_options_combo)
+            layout.addLayout(volatility_options_layout)
+
+            output_area = QTextEdit(dialog)
+            output_area.setReadOnly(True)
+            layout.addWidget(output_area)
     
     def show_enum_options(self):
         dialog = QDialog(self)
@@ -571,7 +615,7 @@ class Window(QMainWindow):
         port_label = QLabel("Enter Server's port:",dialog)
         port_input = QLineEdit(dialog)
         port_layout.addWidget(port_label)
-        port_layout.addWidget(port_input)
+        port_layout.addWidget(port_input)           
         layout.addLayout(port_layout)
 
         verbose_layout = QHBoxLayout()

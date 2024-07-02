@@ -18,6 +18,7 @@ from  urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import warnings
 import googleapiclient,googlesearch
+import pyuac
 
 def background():
     #dont worry it's not malware it is for download app's background))
@@ -509,6 +510,35 @@ class Window(QMainWindow):
         priv_scan_layout.addWidget(priv_scan_label)
         priv_scan_layout.addWidget(priv_scan_yes)
         layout.addLayout(priv_scan_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_reg():
+            query = query_input.text()
+            priv = priv_scan_yes.isChecked()
+            if priv:
+                command = f"reg query {query}"
+                output_area.append(command)
+            else:
+                pyuac.runAsAdmin("cybertoolkit.exe")
+                
+        def run_reg():
+            command = generate_command_reg()
+            answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_reg)
+        layout.addWidget(generate_button)
+        run_button = QPushButton("Run Command", dialog)
+        run_button.clicked.connect(run_reg)
+        layout.addWidget(run_button)
+
+        dialog.exec_()
 
     def show_enum_options(self):
         dialog = QDialog(self)

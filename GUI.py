@@ -543,6 +543,12 @@ class Window(QMainWindow):
                 elif operation == "edit":
                     # Example: reg edit HKCU\\Software\\MyApp /v SomeValue /t REG_SZ /d "Updated Data"
                     command = f"reg edit {query}"  # Replace with appropriate parameters
+                elif operation == "copy":
+                    command = f"reg copy {query}"
+                elif operation == "save":
+                    command = f"reg save {query}"
+                elif operation == "delete":
+                    command = f"reg delete {query}"
                 else:
                     command = ""
 
@@ -552,7 +558,7 @@ class Window(QMainWindow):
 
             def run_command(self):
                 command = generate_command()
-                run_as_admin = True  # For testing, assuming admin rights are required
+                run_as_admin = priv_scan_checkbox.isChecked()
 
                 if command:
                     if run_as_admin:

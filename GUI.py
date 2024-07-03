@@ -446,54 +446,55 @@ class Window(QMainWindow):
 
         dialog.exec_()
 
-        def show_volatility_options(self):
-            dialog = QDialog(self)
-            dialog.setWindowTitle("Volatility Options")
-            dialog.setGeometry(100,100,600,500)
-            
-            layout = QVBoxLayout(dialog)
-            
-            python_layout = QHBoxLayout()
-            python_label = QLabel("Domain:", dialog)
-            python_input = QLineEdit(dialog)
-            python_layout.addWidget(python_label)
-            python_layout.addWidget(python_input)
-            layout.addLayout(python_layout)
+    def show_volatility_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Volatility Options")
+        dialog.setGeometry(100,100,600,500)
+        
+        layout = QVBoxLayout(dialog)
+        
+        python_layout = QHBoxLayout()
+        python_label = QLabel("Domain:", dialog)
+        python_input = QLineEdit(dialog)
+        python_layout.addWidget(python_label)
+        python_layout.addWidget(python_input)
+        layout.addLayout(python_layout)
 
-            volatility_path_layout = QHBoxLayout()
-            volatility_path_label = QLabel("volatility path:", dialog)
-            volatility_path_input = QLineEdit(dialog)
-            volatility_path_layout.addWidget(volatility_path_label)
-            volatility_path_layout.addWidget(volatility_path_input)
+        volatility_path_layout = QHBoxLayout()
+        volatility_path_label = QLabel("volatility path:", dialog)
+        volatility_path_input = QLineEdit(dialog)
+        volatility_path_layout.addWidget(volatility_path_label)
+        volatility_path_layout.addWidget(volatility_path_input)
 
-            layout.addLayout(volatility_path_layout)
+        layout.addLayout(volatility_path_layout)
 
-            file_path_layout = QHBoxLayout()
-            file_path_label = QLabel("IP Address:", dialog)
-            file_path_input = QLineEdit(dialog)
-            file_path_layout.addWidget(file_path_label)
-            file_path_layout.addWidget(file_path_input)
+        file_path_layout = QHBoxLayout()
+        file_path_label = QLabel("IP Address:", dialog)
+        file_path_input = QLineEdit(dialog)
+        file_path_layout.addWidget(file_path_label)
+        file_path_layout.addWidget(file_path_input)
 
-            layout.addLayout(file_path_layout)
+        layout.addLayout(file_path_layout)
 
-            volatility_options_layout = QHBoxLayout()
-            volatility_options_label = QLabel("Scan Type:", dialog)
-            volatility_options_combo = QComboBox(dialog)
-            volatility_options_combo.addItems(["linux.pslist", " linux.pstree", "linux.lsmod", "linux.netstat", "linux.bash","windows.pslist","windows.pstree","windows.filescan","windows.cmdline","windows.netscan"])
-            volatility_options_layout.addWidget(volatility_options_label)
-            volatility_options_layout.addWidget(volatility_options_combo)
-            layout.addLayout(volatility_options_layout)
+        volatility_options_layout = QHBoxLayout()
+        volatility_options_label = QLabel("Scan Type:", dialog)
+        volatility_options_combo = QComboBox(dialog)
+        volatility_options_combo.addItems(["linux.pslist", " linux.pstree", "linux.lsmod", "linux.netstat", "linux.bash","windows.pslist","windows.pstree","windows.filescan","windows.cmdline","windows.netscan"])
+        volatility_options_layout.addWidget(volatility_options_label)
+        volatility_options_layout.addWidget(volatility_options_combo)
+        layout.addLayout(volatility_options_layout)
 
-            output_area = QTextEdit(dialog)
-            output_area.setReadOnly(True)
-            layout.addWidget(output_area)
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
 
-            def generate_command_volatility():
-                domain = python_input.text()
-                file_path = file_path_input.text()
-                command = ""
+        def generate_command_volatility():
+            domain = python_input.text()
+            file_path = file_path_input.text()
+            command = ""
 
     def show_reg_options(self):
+        os_type = platform.uname().system
         if os_type.lower() =="windows":
             dialog = QDialog(self)
             dialog.setWindowTitle("Registry Editor Options")
@@ -553,7 +554,9 @@ class Window(QMainWindow):
                 command = generate_command()
                 if command:
                     if run_as_admin:
-                        pyuac.runAsAdmin(command)
+                        shell_list = command.split()
+                        print(shell_list) 
+                        pyuac.runAsAdmin(shell_list)
                     else:
                         result = subprocess.getoutput(command)
                         output_area.append("\n" + result)

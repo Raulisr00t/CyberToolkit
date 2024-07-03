@@ -804,38 +804,38 @@ class Window(QMainWindow):
         wordlist_layout = QHBoxLayout()
         wordlist_label = QLabel("Wordlist:", dialog)
         wordlist_input = QLineEdit(dialog)
+        wordlist_layout.addWidget(wordlist_label)
+        wordlist_layout.addWidget(wordlist_input)
+        layout.addLayout(wordlist_layout)
 
-        if os.path.exists(wordlist_input):
-            wordlist_layout.addWidget(wordlist_label)
-            wordlist_layout.addWidget(wordlist_input)
-            layout.addLayout(wordlist_layout)
+        def generate_command_gobuster():
+            url = url_input.text()
+            thread_count = thread_count_input.text()
+            wordlist = wordlist_input.text()
 
-            def generate_command_gobuster():
-                url = url_input.text()
-                thread_count = thread_count_input.text()
-                wordlist = wordlist_input.text()
+            if os.path.exists(wordlist):
                 command = f"gobuster dir -u {url} -w {wordlist} -t {thread_count}"
                 return command
+            
+            else:
+                QMessageBox.warning(self,"Wordlist Error","Your wordlist path is incorrect,Please check again")
 
-            def run_gobuster():
-                command = generate_command_gobuster()
-                answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-                if answer == QMessageBox.Yes:
-                    result = subprocess.getoutput(command)
-                    result.append("\n" + result)
+        def run_gobuster():
+            command = generate_command_gobuster()
+            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            if answer == QMessageBox.Yes:
+                result = subprocess.getoutput(command)
+                result.append("\n" + result)
 
-            gobuster_command = QPushButton("Generate Command",dialog)
-            gobuster_command.clicked.connect(generate_command_gobuster())
-            layout.addWidget(gobuster_command)
+        gobuster_command = QPushButton("Generate Command",dialog)
+        gobuster_command.clicked.connect(generate_command_gobuster())
+        layout.addWidget(gobuster_command)
 
-            generate_button = QPushButton("Start Gobuster", dialog)
-            generate_button.clicked.connect(run_gobuster)
-            layout.addWidget(generate_button)
+        generate_button = QPushButton("Start Gobuster", dialog)
+        generate_button.clicked.connect(run_gobuster)
+        layout.addWidget(generate_button)
 
-            dialog.exec_()
-    
-        else:
-            QMessageBox.warning("Your wordlist path is incorrect,Please check again")
+        dialog.exec_()
 
     def show_rdp_options(self):
         global os_type

@@ -1422,7 +1422,7 @@ class Window(QMainWindow):
 
 def main():
     background()
-    time.sleep(1.2)
+    time.sleep(1.1)
     app = QApplication(sys.argv)
     window = Window()
     window.showMaximized()

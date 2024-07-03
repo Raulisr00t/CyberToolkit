@@ -551,7 +551,7 @@ class Window(QMainWindow):
                 return command
 
             def run_command(self):
-                command = "reg query HKLM\Software"
+                command = generate_command()
                 run_as_admin = True  # For testing, assuming admin rights are required
 
                 if command:

@@ -424,13 +424,17 @@ class Window(QMainWindow):
             if thread_count:
                 command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
             if url and ip_address:
-                QMessageBox.warning(dialog,"Domain and IP address doesn not together!")
+                QMessageBox.warning(dialog,"Option Error","Domain and IP address doesn not together!")
+
             if url:
                 command += f" {url}"
+
             if ip_address:
                 command += f" {ip_address}"
+                
             if not thread_count:
                 command = command.split("-min-rate")
+
             output_area.setText(command)
             return command
 
@@ -511,7 +515,7 @@ class Window(QMainWindow):
         layout.addWidget(run_button)
 
         dialog.exec_()
-        
+
     def show_reg_options(self):
         os_type = platform.uname().system
         if os_type.lower() =="windows":

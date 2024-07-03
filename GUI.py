@@ -395,7 +395,7 @@ class Window(QMainWindow):
         scan_type_layout = QHBoxLayout()
         scan_type_label = QLabel("Scan Type:", dialog)
         scan_type_combo = QComboBox(dialog)
-        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Script Scan (-sC)", "OS Detection (-O)", "Aggressive Scan (-A)","Extra Verbosity (-vv)"])
+        scan_type_combo.addItems(["SYN Scan (-sS)", "UDP Scan (-sU)", "Script Scan (-sC)", "OS Detection (-O)", "Aggressive Scan (-A)", "Extra Verbosity (-vv)"])
         scan_type_layout.addWidget(scan_type_label)
         scan_type_layout.addWidget(scan_type_combo)
         layout.addLayout(scan_type_layout)
@@ -406,6 +406,13 @@ class Window(QMainWindow):
         version_scan_layout.addWidget(version_scan_label)
         version_scan_layout.addWidget(version_scan_yes)
         layout.addLayout(version_scan_layout)
+
+        skip_host_layout = QHBoxLayout()
+        skip_host_label = QLabel("Scan without Ping:", dialog)
+        skip_host_discovery_checkbox = QCheckBox("Yes",dialog)
+        skip_host_layout.addWidget(skip_host_label)
+        skip_host_layout.addWidget(skip_host_discovery_checkbox)
+        layout.addLayout(skip_host_layout)
 
         output_area = QTextEdit(dialog)
         output_area.setReadOnly(True)
@@ -420,7 +427,14 @@ class Window(QMainWindow):
             command = "nmap"
     
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
-    
+            not_ping = "-Pn" if skip_host_discovery_checkbox.isChecked() else ""
+            
+            if not_ping and url:
+                command += f' -Pn {url}'
+
+            if not_ping and ip_address:
+                command += f' -Pn {ip_address}'
+
             if thread_count:
                 command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
 
@@ -435,7 +449,19 @@ class Window(QMainWindow):
                 command += f" {ip_address}"
 
             if not thread_count:
-                command = command.split("-min-rate")
+                if version_scan:
+                    command = command.split("-min-rate")
+                    if url:
+                        command += version_scan,url
+                        output_area.setText(str(command))
+                    elif ip_address:
+                        command += version_scan,ip_address
+                        output_area.setText(str(command))
+                    else:
+                        QMessageBox.information(dialog,"Please check your inputs")
+                        pass
+                else:
+                    command = command.split("-min-rate")
 
             output_area.setText(command)
             return command
@@ -512,6 +538,7 @@ class Window(QMainWindow):
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(generate_command_volatility)
         layout.addWidget(generate_button)
+
         run_button = QPushButton("Run Command", dialog)
         run_button.clicked.connect(run_volatility)
         layout.addWidget(run_button)
@@ -808,6 +835,10 @@ class Window(QMainWindow):
         wordlist_layout.addWidget(wordlist_input)
         layout.addLayout(wordlist_layout)
 
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
         def generate_command_gobuster():
             url = url_input.text()
             thread_count = thread_count_input.text()
@@ -816,24 +847,24 @@ class Window(QMainWindow):
             if os.path.exists(wordlist):
                 command = f"gobuster dir -u {url} -w {wordlist} -t {thread_count}"
                 return command
-            
             else:
-                QMessageBox.warning(self,"Wordlist Error","Your wordlist path is incorrect,Please check again")
+                QMessageBox.warning(dialog, "Wordlist Error", "Your wordlist path is incorrect. Please check again.")
 
         def run_gobuster():
             command = generate_command_gobuster()
-            answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
-            if answer == QMessageBox.Yes:
-                result = subprocess.getoutput(command)
-                result.append("\n" + result)
+            if command:
+                answer = QMessageBox.question(dialog, "Run Gobuster", "Do you want to start Gobuster? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    output_area.append("\n" + result)
 
-        gobuster_command = QPushButton("Generate Command",dialog)
-        gobuster_command.clicked.connect(generate_command_gobuster())
-        layout.addWidget(gobuster_command)
+        gobuster_command_button = QPushButton("Generate Command", dialog)
+        gobuster_command_button.clicked.connect(generate_command_gobuster)
+        layout.addWidget(gobuster_command_button)
 
-        generate_button = QPushButton("Start Gobuster", dialog)
-        generate_button.clicked.connect(run_gobuster)
-        layout.addWidget(generate_button)
+        start_gobuster_button = QPushButton("Start Gobuster", dialog)
+        start_gobuster_button.clicked.connect(run_gobuster)
+        layout.addWidget(start_gobuster_button)
 
         dialog.exec_()
 

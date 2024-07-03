@@ -416,7 +416,7 @@ class Window(QMainWindow):
             thread_count = thread_count_input.text()
             ip_address = ip_address_input.text()
             scan_type = scan_type_combo.currentText()
-            scan = scan_type.split("(")[1].split(")")[0]  # Correctly extract the scan type
+            scan = scan_type.split("(")[1].split(")")[0]
             command = "nmap"
     
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
@@ -426,10 +426,10 @@ class Window(QMainWindow):
 
             if url and ip_address:
                 QMessageBox.warning(dialog,"Option Error","Domain and IP address doesn not together!")
-                return url
+                return ""
             
             if url:
-                command += f" {url}"
+                command += f" {url}" 
 
             if ip_address:
                 command += f" {ip_address}"
@@ -535,7 +535,7 @@ class Window(QMainWindow):
             operation_layout = QHBoxLayout()
             operation_label = QLabel("Operation:", dialog)
             operation_combo = QComboBox(dialog)
-            operation_combo.addItems(["Query (reg query)", "Add (reg add)", "Save (reg save)"," Delete (reg delete)","Copy (reg copy)"])
+            operation_combo.addItems(["Query", "Add", "Save","Delete","Copy"])
             operation_layout.addWidget(operation_label)
             operation_layout.addWidget(operation_combo)
             layout.addLayout(operation_layout)

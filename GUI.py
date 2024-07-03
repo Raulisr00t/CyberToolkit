@@ -423,10 +423,11 @@ class Window(QMainWindow):
     
             if thread_count:
                 command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
-                
+
             if url and ip_address:
                 QMessageBox.warning(dialog,"Option Error","Domain and IP address doesn not together!")
-
+                return url
+            
             if url:
                 command += f" {url}"
 
@@ -441,7 +442,7 @@ class Window(QMainWindow):
 
         def run_nmap():
             command = generate_command_nmap()
-            answer = QMessageBox.question(dialog, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(self, "Run Nmap", "Do you want to scan? (Y/N)", QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 result = subprocess.getoutput(command)
                 output_area.append("\n" + result)

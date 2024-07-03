@@ -554,9 +554,10 @@ class Window(QMainWindow):
                 command = generate_command()
                 if command:
                     if run_as_admin:
-                        shell_list = command.split()
-                        print(shell_list) 
-                        pyuac.runAsAdmin(shell_list)
+                        # Split the command into a list of arguments
+                        command_list = command.split()
+                        print(command_list)
+                        pyuac.runAsAdmin(command_list)
                     else:
                         result = subprocess.getoutput(command)
                         output_area.append("\n" + result)

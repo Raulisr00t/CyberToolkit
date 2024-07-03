@@ -423,6 +423,7 @@ class Window(QMainWindow):
     
             if thread_count:
                 command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
+                
             if url and ip_address:
                 QMessageBox.warning(dialog,"Option Error","Domain and IP address doesn not together!")
 
@@ -431,7 +432,7 @@ class Window(QMainWindow):
 
             if ip_address:
                 command += f" {ip_address}"
-                
+
             if not thread_count:
                 command = command.split("-min-rate")
 

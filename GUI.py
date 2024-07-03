@@ -417,10 +417,12 @@ class Window(QMainWindow):
             ip_address = ip_address_input.text()
             scan_type = scan_type_combo.currentText()
             scan = scan_type.split("(")[1].split(")")[0]  # Correctly extract the scan type
-
+            command = "nmap"
+    
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
-
-            command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
+    
+            if thread_count:
+                command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
             if url and ip_address:
                 QMessageBox.warning(dialog,"Domain and IP address doesn not together!")
             if url:
@@ -494,10 +496,22 @@ class Window(QMainWindow):
             domain = python_input.text()
             file_path = file_path_input.text()
             command = ""
+            output_area.append(command)
+
 
         def run_volatility():
             command = generate_command_volatility()
-            
+            output_area.append(command)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_volatility)
+        layout.addWidget(generate_button)
+        run_button = QPushButton("Run Command", dialog)
+        run_button.clicked.connect(run_volatility)
+        layout.addWidget(run_button)
+
+        dialog.exec_()
+        
     def show_reg_options(self):
         os_type = platform.uname().system
         if os_type.lower() =="windows":

@@ -102,13 +102,13 @@ class Window(QMainWindow):
             ["Nmap", "Hydra", "Gobuster"],
             ["CrackMapExec", "Enum4linux", "Searchsploit"],
             ["Msfvenom", "Curl", "Nikto"],
-            ["(Coming Soon)", "Sherloc", "Osintagram"]
+            ["(Coming Soon)", "Sherloc", "Coming Soon"]
         ]
 
         self.blue_team_tools = [
             ["Snort", "Winlog (Coming Soon)", "Zeek"],
             ["Dcfldd", "TcpDump", "Registry Editor"],
-            ["(Coming Soon)", "(Coming Soon)"]
+            ["(Coming Soon)", "(Coming Soon)","Coming Soon"]
         ]
 
         self.general_team_tools = [
@@ -322,7 +322,7 @@ class Window(QMainWindow):
         self.horizontalLayout.addWidget(self.TurnBack, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addWidget(self.navbar, 0, QtCore.Qt.AlignTop)
         self.Body = QtWidgets.QWidget(tool_widget)
-        
+
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -376,6 +376,9 @@ class Window(QMainWindow):
 
     def return_to_choice(self):
         self.stacked_widget.setCurrentIndex(0)
+
+    
+
 
 
     def create_handler(self, label_text):
@@ -1937,6 +1940,7 @@ class Window(QMainWindow):
 
         generate_button = QPushButton("Generate Command", dialog)
         generate_button.clicked.connect(generate_command_tcpdump)
+        
         layout.addWidget(generate_button)
 
         start_button = QPushButton("Start TcpDump", dialog)

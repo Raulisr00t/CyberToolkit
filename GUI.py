@@ -421,6 +421,8 @@ class Window(QMainWindow):
             version_scan = "-sV" if version_scan_yes.isChecked() else ""
 
             command = f"nmap {scan} {version_scan} --min-rate={thread_count}"
+            if url and ip_address:
+                QMessageBox.warning(dialog,"Domain and IP address doesn not together!")
             if url:
                 command += f" {url}"
             if ip_address:
@@ -493,6 +495,9 @@ class Window(QMainWindow):
             file_path = file_path_input.text()
             command = ""
 
+        def run_volatility():
+            command = generate_command_volatility()
+            
     def show_reg_options(self):
         os_type = platform.uname().system
         if os_type.lower() =="windows":

@@ -2,13 +2,14 @@ import sys
 import time
 import os
 import requests
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QSizePolicy,
     QMessageBox, QPushButton, QStackedWidget, QSpacerItem, QHBoxLayout, QDialog,
     QLineEdit, QComboBox, QCheckBox, QTextEdit,QFontComboBox,QTextBrowser
 )
 from PyQt5.QtGui import QColor, QPalette, QPixmap, QBrush,QFont,QTextCursor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt , QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
 import platform
 import subprocess
 import paramiko,netmiko
@@ -23,202 +24,359 @@ from googlesearch import search
 import webbrowser
 import pyuac
 
-def background():
-    #dont worry it's not malware it is for download app's background))
-    url = "https://www.stjohns.edu/sites/default/files/2022-05/istock-1296650655.jpg"
-    global home
-    global filename
-    if platform.uname().system.lower() == "windows":
-        home = os.getenv("USERPROFILE")
-        filename = f"{home}\\cybersec.jpg"
-        os.system(f"attrib +h +s +r {filename}")
+class HoverButton(QtWidgets.QPushButton):
+    def __init__(self, title, parent=None):
+        super().__init__(title, parent)
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
+        self.setMinimumSize(QtCore.QSize(250, 100))
+        self.setMouseTracking(True)
+        self.initialized = False
 
-        if os.path.exists(filename):
-            pass
-        else:
-            response = requests.get(url, allow_redirects=True)
-            if response.status_code <= 400:
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-    else:
-        linux_home = os.getenv("HOME")
-        filename = f"{linux_home}/cybersec.jpg"
-        if os.path.exists(filename):
-            pass
+    def enterEvent(self, event):
+        self.update_button_geometry()
+        self.on_hover()
+        super().enterEvent(event)
 
-        else:
-            response = requests.get(url, allow_redirects=True)
-            if response.status_code <= 400:
-                with open(filename, "wb") as f:
-                    f.write(response.content)
+    def leaveEvent(self, event):
+        self.on_leave()
+        super().leaveEvent(event)
+
+    def update_button_geometry(self):
+        self.position = self.geometry().topLeft()
+        self.sizes = self.geometry().size()
+        self.initialized = True
+
+    def on_hover(self):
+        if not self.initialized:
+            self.update_button_geometry()
+
+        self.anim_group = QParallelAnimationGroup(self)
+        
+        size_animation = QPropertyAnimation(self, b"size")
+        size_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        size_animation.setEndValue(QtCore.QSize(self.sizes.width() + 16, self.sizes.height() + 16))
+        size_animation.setDuration(100)
+        self.anim_group.addAnimation(size_animation)
+        
+        pos_animation = QPropertyAnimation(self, b"pos")
+        pos_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        pos_animation.setEndValue(QtCore.QPoint(self.position.x() - 8, self.position.y() - 8))
+        pos_animation.setDuration(100)
+        self.anim_group.addAnimation(pos_animation)
+        
+        self.anim_group.start()
+
+    def on_leave(self):
+        if not self.initialized:
+            self.update_button_geometry()
+
+        self.anim_group = QParallelAnimationGroup(self)
+        
+        size_animation = QPropertyAnimation(self, b"size")
+        size_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        size_animation.setEndValue(self.sizes)
+        size_animation.setDuration(100)
+        self.anim_group.addAnimation(size_animation)
+        
+        pos_animation = QPropertyAnimation(self, b"pos")
+        pos_animation.setEasingCurve(QEasingCurve.InOutCubic)
+        pos_animation.setEndValue(self.position)
+        pos_animation.setDuration(100)
+        self.anim_group.addAnimation(pos_animation)
+        
+        self.anim_group.start()
+
+
 
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        
         self.setWindowTitle("CAPSTONE Project--GROUP D")
-        self.setGeometry(100, 100, 800, 600)
-        pixmap = QPixmap(filename)
-        self.setPixmapAsBackground(pixmap)
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
-
-        self.create_initial_screen()
-
+        self.buttons = []
+        
         self.red_team_tools = [
             ["Nmap", "Hydra", "Gobuster"],
             ["CrackMapExec", "Enum4linux", "Searchsploit"],
             ["Msfvenom", "Curl", "Nikto"],
-            ["Nikto", "Sherloc", "Osintagram"]
+            ["(Coming Soon)", "Sherloc", "Osintagram"]
         ]
 
         self.blue_team_tools = [
-            ["Snort", "Winlog", "Zeek"],
-            ["Dcfldd", "TcpDump", "Registry Editor"]
+            ["Snort", "Winlog (Coming Soon)", "Zeek"],
+            ["Dcfldd", "TcpDump", "Registry Editor"],
+            ["(Coming Soon)", "(Coming Soon)"]
         ]
 
         self.general_team_tools = [
             ["SSH Connection", "FTP Connection", "RDP Connection"],
-            ["Netcat Connection","OSINT Tool","DNS LookUP"]
+            ["Netcat Connection", "OSINT Tool", "DNS Lookup"]
         ]
+        self.setupUi()
 
-    def setPixmapAsBackground(self, pixmap):
-        palette = self.palette()
-        palette.setBrush(QPalette.Window, QBrush(pixmap))
-        self.setPalette(palette)
+###################################################################
+    def setupUi(self):
+        Main = QWidget(self)
+        Main.setObjectName("Main")
+        Main.setStyleSheet("#Main{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgb(173, 216, 230), stop:1 rgb(147, 112, 219))}\n"
+"#BlueTeamButton{\n"
+"                background-color: #3498db;\n"
+"                border-radius: 15px;\n"
+"                margin: 5px;\n"
+"                padding:10px 0;\n"
+"            }\n"
+"#RedTeamButton{\n"
+"                background-color: #e74c3c;\n"
+"                border-radius: 15px;\n"
+"                margin: 5px;\n"
+"                padding:10px 0;\n"
+"           }\n"
+"#GeneralToolsButton{\n"
+"                background-color: #95a5a6;\n"
+"                border-radius: 15px;\n"
+"                margin: 5px;\n"
+"                padding:10px 0;\n"
+"            }\n"
+"\n"
+"#Buttons_widget{\n"
+"    background-color: rgba(0, 0, 0, 0.5);\n"
+"    border-radius: 15px;\n"
+"}\n"
+"\n"
+"\n"
+"#Help_Button{\n"
+"border-radius: 24px;\n"
+"background-color: white;\n"
+"border: 0px;\n"
+"}")
+        self.verticalLayout = QtWidgets.QVBoxLayout(Main)
+        self.verticalLayout.setObjectName("verticalLayout")
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
+        self.Mid = QtWidgets.QWidget(Main)
+        self.Mid.setObjectName("Mid")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.Mid)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label_wiget = QtWidgets.QWidget(self.Mid)
+        self.label_wiget.setObjectName("label_wiget")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.label_wiget)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.label = QtWidgets.QLabel("Choose Your Team",self.label_wiget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(24)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.verticalLayout_3.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
+        self.verticalLayout_2.addWidget(self.label_wiget)
+        self.widget = QtWidgets.QWidget(self.Mid)
+        self.widget.setObjectName("widget")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.widget)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.Buttons_widget = QtWidgets.QWidget(self.widget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Buttons_widget.sizePolicy().hasHeightForWidth())
+        self.Buttons_widget.setSizePolicy(sizePolicy)
+        self.Buttons_widget.setMaximumSize(QtCore.QSize(1200, 400))
+        self.Buttons_widget.setObjectName("Buttons_widget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.Buttons_widget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.RedTeamButton = HoverButton('Red Team',self.Buttons_widget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        self.RedTeamButton.setFont(font)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("./img/hacker.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.RedTeamButton.setIcon(icon)
+        self.RedTeamButton.setIconSize(QtCore.QSize(48, 48))
+        self.RedTeamButton.setObjectName("RedTeamButton")
+        self.RedTeamButton.clicked.connect(self.show_red_team_tools)
+        self.horizontalLayout.addWidget(self.RedTeamButton)
+        self.BlueTeamButton = HoverButton('Blue Team',self.Buttons_widget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        self.BlueTeamButton.setFont(font)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("./img/defender.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.BlueTeamButton.setIcon(icon1)
+        self.BlueTeamButton.setIconSize(QtCore.QSize(48, 48))
+        self.BlueTeamButton.setShortcut("")
+        self.BlueTeamButton.setObjectName("BlueTeamButton")
+        self.BlueTeamButton.clicked.connect(self.show_blue_team_tools)
+        self.horizontalLayout.addWidget(self.BlueTeamButton)
+        self.GeneralToolsButton = HoverButton('General Tools',self.Buttons_widget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        self.GeneralToolsButton.setFont(font)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("./img/set.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.GeneralToolsButton.setIcon(icon2)
+        self.GeneralToolsButton.setIconSize(QtCore.QSize(48, 48))
+        self.GeneralToolsButton.setObjectName("GeneralToolsButton")
+        self.GeneralToolsButton.clicked.connect(self.show_general_tools)
+        self.horizontalLayout.addWidget(self.GeneralToolsButton)
+        self.horizontalLayout_2.addWidget(self.Buttons_widget)
+        self.verticalLayout_2.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.Mid)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem1)
+        self.bottom = QtWidgets.QWidget(Main)
+        self.bottom.setObjectName("bottom")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.bottom)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem2)
+        self.widget_2 = QtWidgets.QWidget(self.bottom)
+        self.widget_2.setObjectName("widget_2")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.widget_2)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.Help_Button = QtWidgets.QPushButton(self.widget_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Help_Button.sizePolicy().hasHeightForWidth())
+        self.Help_Button.setSizePolicy(sizePolicy)
+        self.Help_Button.setMinimumSize(QtCore.QSize(0, 0))
+        self.Help_Button.setMaximumSize(QtCore.QSize(16777215, 1000000))
+        self.Help_Button.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("./img/question.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.Help_Button.setIcon(icon3)
+        self.Help_Button.setIconSize(QtCore.QSize(48, 48))
+        self.Help_Button.setObjectName("Help_Button")
+        self.verticalLayout_4.addWidget(self.Help_Button)
+        self.horizontalLayout_3.addWidget(self.widget_2)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem3)
+        self.verticalLayout.addWidget(self.bottom, 0, QtCore.Qt.AlignBottom)
+        self.stacked_widget.addWidget(Main)
+        self.stacked_widget.setCurrentWidget(Main)
+        
 
-    def create_initial_screen(self):
-        initial_widget = QWidget(self)
-        initial_layout = QVBoxLayout(initial_widget)
-        initial_layout.setAlignment(Qt.AlignTop)
-
-        title_label = QLabel("Choose Your Team", initial_widget)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 70px; font-weight: bold; color: black; margin-bottom: 40px;")
-
-        button_layout = QGridLayout()
-        button_layout.setSpacing(10)
-
-        red_button = QPushButton("RED", initial_widget)
-        red_button.setStyleSheet("background-color: red; color: white; font-size: 60px; padding: 60px;")
-        red_button.setFixedSize(520, 520)
-        red_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        red_button.clicked.connect(self.show_red_team_tools)
-
-        blue_button = QPushButton("BLUE", initial_widget)
-        blue_button.setStyleSheet("background-color: blue; color: white; font-size: 60px; padding: 60px;")
-        blue_button.setFixedSize(520, 520)
-        blue_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        blue_button.clicked.connect(self.show_blue_team_tools)
-
-        general_button = QPushButton("General Tools", initial_widget)
-        general_button.setStyleSheet("background-color: gray; color: white; font-size: 60px; padding: 60px;")
-        general_button.setFixedSize(520, 520)
-        general_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        general_button.clicked.connect(self.show_general_tools)
-
-        button_layout.addWidget(red_button, 0, 0, Qt.AlignCenter)
-        button_layout.addWidget(blue_button, 0, 1, Qt.AlignCenter)
-        button_layout.addWidget(general_button, 1, 0, 1, 2, Qt.AlignCenter)
-
-        initial_layout.addWidget(title_label, alignment=Qt.AlignCenter)
-        initial_layout.addSpacerItem(QSpacerItem(20, 160, QSizePolicy.Minimum, QSizePolicy.Fixed))
-        initial_layout.addLayout(button_layout)
-
-        initial_widget.setLayout(initial_layout)
-        self.stacked_widget.addWidget(initial_widget)
-        self.stacked_widget.setCurrentWidget(initial_widget)
 
     def show_red_team_tools(self):
-        self.show_team_tools(self.red_team_tools, "Red Team Tools")
-        self.set_background_color(QColor(255, 192, 203))
+        self.show_team_tools(self.red_team_tools, "Red Team Tools","#e74c3c")
 
     def show_blue_team_tools(self):
-        self.show_team_tools(self.blue_team_tools, "Blue Team Tools")
-        self.set_background_color(QColor(173, 216, 230))
+        self.show_team_tools(self.blue_team_tools, "Blue Team Tools","#3498db")
 
     def show_general_tools(self):
-        self.show_team_tools(self.general_team_tools, "General Tools")
-        self.set_background_color(QColor(211, 211, 211))
+        self.show_team_tools(self.general_team_tools, "General Tools","#95a5a6")
 
-    def set_background_color(self, color):
-        palette = QPalette()
-        palette.setColor(QPalette.Window, color)
-        self.stacked_widget.currentWidget().setPalette(palette)
+    def show_team_tools(self, tools, team_label,color):
+        tool_widget = QtWidgets.QWidget(self)
+        tool_widget.setObjectName("centralwidget")
+        tool_widget.setStyleSheet("#centralwidget{background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgb(173, 216, 230), stop:1 rgb(147, 112, 219))}")
+        self.verticalLayout = QtWidgets.QVBoxLayout(tool_widget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.navbar = QtWidgets.QWidget(tool_widget)
+        self.navbar.setStyleSheet(f"background-color:{color};\n"
+"border-radius: 15px;")
+        self.navbar.setObjectName("navbar")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.navbar)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.TeamBar = QtWidgets.QWidget(self.navbar)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.TeamBar.sizePolicy().hasHeightForWidth())
+        self.TeamBar.setSizePolicy(sizePolicy)
+        self.TeamBar.setObjectName("TeamBar")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.TeamBar)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label = QtWidgets.QLabel(team_label,self.TeamBar)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(24)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.verticalLayout_2.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
+        self.horizontalLayout.addWidget(self.TeamBar)
+        self.TurnBack = QtWidgets.QWidget(self.navbar)
+        self.TurnBack.setObjectName("TurnBack")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.TurnBack)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.TurnBacButton = QtWidgets.QPushButton(self.TurnBack)
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        self.TurnBacButton.setFont(font)
+        self.TurnBacButton.setStyleSheet("padding: 5px 10px;")
+        self.TurnBacButton.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("./img/turn-back.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.TurnBacButton.setIcon(icon)
+        self.TurnBacButton.setIconSize(QtCore.QSize(32, 32))
+        self.TurnBacButton.setObjectName("TurnBacButton")
+        self.TurnBacButton.clicked.connect(self.return_to_choice)
+        self.verticalLayout_4.addWidget(self.TurnBacButton)
+        self.horizontalLayout.addWidget(self.TurnBack, 0, QtCore.Qt.AlignRight)
+        self.verticalLayout.addWidget(self.navbar, 0, QtCore.Qt.AlignTop)
+        self.Body = QtWidgets.QWidget(tool_widget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Body.sizePolicy().hasHeightForWidth())
+        self.Body.setSizePolicy(sizePolicy)
+        self.Body.setStyleSheet("QPushButton{\n"
+"    margin: 10px;\n"
+"    border-radius: 10px;\n"
+"    background-color: #ffffff;\n"
+"    padding: 10px;\n"
+"}")
+        self.Body.setObjectName("Body")
+        self.gridLayout = QtWidgets.QGridLayout(self.Body)
+        self.gridLayout.setObjectName("gridLayout")
+        self.verticalLayout.addWidget(self.Body)
 
-    def show_team_tools(self, tools, team_label):
-        tool_widget = QWidget(self)
-        palette = QPalette()
-        palette.setColor(QPalette.Window, QColor(173, 216, 230))
-        tool_widget.setPalette(palette)
-        tool_widget.setAutoFillBackground(True)
 
-        main_layout = QVBoxLayout(tool_widget)
+        row, col = 0, 0
+        for row_tools in tools:
+            for tool in row_tools:
+                tool_button = HoverButton(tool)
+                tool_button.setStyleSheet("margin: 10px; padding: 20px;")
+                tool_button.setFont(QtGui.QFont('Arial', 14))
+                tool_button.setMinimumSize(200, 100)
+                tool_button.setMaximumSize(700, 300)
+                tool_button.clicked.connect(self.create_handler(tool))
+                self.gridLayout.addWidget(tool_button, row, col)
+                self.buttons.append(tool_button)
+                col += 1
+            row += 1
+            col = 0
 
-        header_layout = QHBoxLayout()
-        main_layout.addLayout(header_layout)
-
-        team_label_widget = QLabel(team_label, tool_widget)
-        team_label_widget.setAlignment(Qt.AlignLeft)
-        team_label_widget.setStyleSheet("font-size: 34px; font-weight: bold; margin-bottom: 20px;")
-        header_layout.addWidget(team_label_widget)
-
-        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        header_layout.addSpacerItem(spacer)
-
-        return_button = QPushButton("Return to Choice", tool_widget)
-        return_button.setStyleSheet("font-size: 16px; padding: 10px 20px;")
-        return_button.setFixedSize(200, 50)
-        return_button.clicked.connect(self.return_to_choice)
-        header_layout.addWidget(return_button)
-
-        for i, section_labels in enumerate(tools):
-            section = self.create_section(f"Section {i + 1}", section_labels)
-            main_layout.addWidget(section)
-
-        tool_widget.setLayout(main_layout)
+        # Adjust initial sizes and positions
+        QtCore.QTimer.singleShot(0, self.adjust_initial_sizes)
         self.stacked_widget.addWidget(tool_widget)
         self.stacked_widget.setCurrentWidget(tool_widget)
+
+    def on_tool_button_clicked(self, tool):
+        print(f"Tool {tool} clicked")
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        for button in self.buttons:
+            button.position = button.geometry().topLeft()
+            button.sizes = button.geometry().size()
+
+    def adjust_initial_sizes(self):
+        for button in self.buttons:
+            button.position = button.geometry().topLeft()
+            button.sizes = button.geometry().size()
 
     def return_to_choice(self):
         self.stacked_widget.setCurrentIndex(0)
 
-    def create_section(self, title, labels):
-        section_widget = QWidget()
-        section_layout = QVBoxLayout(section_widget)
-        
-        title_label = QLabel(title, section_widget)
-        section_layout.addWidget(title_label)
-        
-        grid_layout = QGridLayout()
-        section_layout.addLayout(grid_layout)
+    
 
-        num_labels = len(labels)
-        rows = (num_labels - 1) // 4 + 1
-        cols = min(4, num_labels)
 
-        for index, label_text in enumerate(labels):
-            row = index // 4
-            col = index % 4
-            grid_label = QLabel(label_text, section_widget)
-            grid_label.setAlignment(Qt.AlignCenter)
-            grid_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            grid_label.setStyleSheet("border: 1px solid black; background-color: white; font-size: 18px;")
-            grid_label.mousePressEvent = self.create_handler(label_text)
-            grid_layout.addWidget(grid_label, row, col)
-        
-        for index in range(num_labels, rows * 3):
-            row = index // 4
-            col = index % 4
-            grid_label = QLabel("", section_widget)
-            grid_label.setAlignment(Qt.AlignCenter)
-            grid_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            grid_label.setStyleSheet("border: 1px solid black; background-color: white; font-size: 18px;")
-            grid_layout.addWidget(grid_label, row, col)
-
-        section_widget.setLayout(section_layout)
-        return section_widget
 
     def create_handler(self, label_text):
         def handler(event):
@@ -256,6 +414,14 @@ class Window(QMainWindow):
                 self.show_volatility_options()
             if label_text == "Registry Editor":
                 self.show_reg_options()
+            if label_text == "Dcfldd":
+                self.show_dcfldd_options()
+            if label_text == "Zeek":
+                self.show_zeek_options()
+            if label_text == "TcpDump":
+                self.show_tcpdump_options()
+            if "Coming Soon" in label_text:
+                self.show_coming_soon(label_text)
             else:
                 self.show_tool_options(label_text)
         return handler
@@ -282,6 +448,14 @@ class Window(QMainWindow):
                 os.system(tool_name)
             else:
                 pass #for now
+
+    def show_coming_soon(self, tool_name):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(f"{tool_name}")
+        msg.setText(f"{tool_name} functionality is coming soon!")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec()
 
     def show_crack_options(self):
         dialog = QDialog(self)
@@ -793,7 +967,7 @@ class Window(QMainWindow):
             port = port_input.text()
             verbose = "-V" if verbose_yes.isChecked() else ""
             if verbose:
-                command = f"hydra -l {username} -p {password} {server+"://"+server_ip+":"+port} -V" 
+                command = f"hydra -l {username} -p {password} {server}://{server_ip}:{port} -V" 
 
         def run_hydra():
             command = generate_command_hydra()
@@ -1490,13 +1664,293 @@ class Window(QMainWindow):
 
         dialog.exec_()
 
+    def show_dcfldd_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("dcfldd Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        input_file_layout = QHBoxLayout()
+        input_file_label = QLabel("Input File:", dialog)
+        input_file_input = QLineEdit(dialog)
+        input_file_layout.addWidget(input_file_label)
+        input_file_layout.addWidget(input_file_input)
+        layout.addLayout(input_file_layout)
+
+        output_file_layout = QHBoxLayout()
+        output_file_label = QLabel("Output File:", dialog)
+        output_file_input = QLineEdit(dialog)
+        output_file_layout.addWidget(output_file_label)
+        output_file_layout.addWidget(output_file_input)
+        layout.addLayout(output_file_layout)
+
+        hash_type_layout = QHBoxLayout()
+        hash_type_label = QLabel("Hash Type:", dialog)
+        hash_type_combo = QComboBox(dialog)
+        hash_type_combo.addItems(["md5", "sha1", "sha256", "sha512"])
+        hash_type_layout.addWidget(hash_type_label)
+        hash_type_layout.addWidget(hash_type_combo)
+        layout.addLayout(hash_type_layout)
+
+        hash_log_layout = QHBoxLayout()
+        hash_log_label = QLabel("Hash Log File:", dialog)
+        hash_log_input = QLineEdit(dialog)
+        hash_log_layout.addWidget(hash_log_label)
+        hash_log_layout.addWidget(hash_log_input)
+        layout.addLayout(hash_log_layout)
+
+        split_size_layout = QHBoxLayout()
+        split_size_label = QLabel("Split Size (MB):", dialog)
+        split_size_input = QLineEdit(dialog)
+        split_size_layout.addWidget(split_size_label)
+        split_size_layout.addWidget(split_size_input)
+        layout.addLayout(split_size_layout)
+
+        verify_layout = QHBoxLayout()
+        verify_label = QLabel("Verify:", dialog)
+        verify_yes = QCheckBox("Yes", dialog)
+        verify_layout.addWidget(verify_label)
+        verify_layout.addWidget(verify_yes)
+        layout.addLayout(verify_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_dcfldd():
+            input_file = input_file_input.text()
+            output_file = output_file_input.text()
+            hash_type = hash_type_combo.currentText()
+            hash_log = hash_log_input.text()
+            split_size = split_size_input.text()
+            verify = verify_yes.isChecked()
+
+            command = f"dcfldd if={input_file} of={output_file} hash={hash_type} hashlog={hash_log}"
+            if split_size:
+                command += f" split={split_size}M"
+            if verify:
+                command += " vf={output_file}"
+
+            output_area.setText(command)
+            return command
+
+        def run_dcfldd():
+            command = generate_command_dcfldd()
+            if command:
+                answer = QMessageBox.question(dialog, "Run dcfldd", "Do you want to run dcfldd? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_dcfldd)
+        layout.addWidget(generate_button)
+
+        start_button = QPushButton("Start dcfldd", dialog)
+        start_button.clicked.connect(run_dcfldd)
+        layout.addWidget(start_button)
+
+        dialog.exec_()
+
+    def show_zeek_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Zeek Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        interface_layout = QHBoxLayout()
+        interface_label = QLabel("Interface:", dialog)
+        interface_input = QLineEdit(dialog)
+        interface_layout.addWidget(interface_label)
+        interface_layout.addWidget(interface_input)
+        layout.addLayout(interface_layout)
+
+        scripts_layout = QHBoxLayout()
+        scripts_label = QLabel("Scripts (comma-separated):", dialog)
+        scripts_input = QLineEdit(dialog)
+        scripts_layout.addWidget(scripts_label)
+        scripts_layout.addWidget(scripts_input)
+        layout.addLayout(scripts_layout)
+
+        output_dir_layout = QHBoxLayout()
+        output_dir_label = QLabel("Output Directory:", dialog)
+        output_dir_input = QLineEdit(dialog)
+        output_dir_layout.addWidget(output_dir_label)
+        output_dir_layout.addWidget(output_dir_input)
+        layout.addLayout(output_dir_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_zeek():
+            interface = interface_input.text()
+            scripts = scripts_input.text()
+            output_dir = output_dir_input.text()
+
+            command = f"zeek -i {interface}"
+            if scripts:
+                command += f" {scripts}"
+            if output_dir:
+                command += f" Log::default_writer=ASCII::Writer path={output_dir}"
+
+            output_area.setText(command)
+            return command
+
+        def run_zeek():
+            command = generate_command_zeek()
+            if command:
+                answer = QMessageBox.question(dialog, "Run Zeek", "Do you want to run Zeek? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_zeek)
+        layout.addWidget(generate_button)
+
+        start_button = QPushButton("Start Zeek", dialog)
+        start_button.clicked.connect(run_zeek)
+        layout.addWidget(start_button)
+
+        dialog.exec_()
+
+    def show_snort_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Snort Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        interface_layout = QHBoxLayout()
+        interface_label = QLabel("Interface:", dialog)
+        interface_input = QLineEdit(dialog)
+        interface_layout.addWidget(interface_label)
+        interface_layout.addWidget(interface_input)
+        layout.addLayout(interface_layout)
+
+        config_layout = QHBoxLayout()
+        config_label = QLabel("Configuration File:", dialog)
+        config_input = QLineEdit(dialog)
+        config_layout.addWidget(config_label)
+        config_layout.addWidget(config_input)
+        layout.addLayout(config_layout)
+
+        rule_file_layout = QHBoxLayout()
+        rule_file_label = QLabel("Rule File:", dialog)
+        rule_file_input = QLineEdit(dialog)
+        rule_file_layout.addWidget(rule_file_label)
+        rule_file_layout.addWidget(rule_file_input)
+        layout.addLayout(rule_file_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_snort():
+            interface = interface_input.text()
+            config_file = config_input.text()
+            rule_file = rule_file_input.text()
+
+            command = f"snort -i {interface}"
+            if config_file:
+                command += f" -c {config_file}"
+            if rule_file:
+                command += f" -r {rule_file}"
+
+            output_area.setText(command)
+            return command
+
+        def run_snort():
+            command = generate_command_snort()
+            if command:
+                answer = QMessageBox.question(dialog, "Run Snort", "Do you want to run Snort? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_snort)
+        layout.addWidget(generate_button)
+
+        start_button = QPushButton("Start Snort", dialog)
+        start_button.clicked.connect(run_snort)
+        layout.addWidget(start_button)
+
+        dialog.exec_()
+
+    def show_tcpdump_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("TcpDump Options")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        interface_layout = QHBoxLayout()
+        interface_label = QLabel("Interface:", dialog)
+        interface_input = QLineEdit(dialog)
+        interface_layout.addWidget(interface_label)
+        interface_layout.addWidget(interface_input)
+        layout.addLayout(interface_layout)
+
+        count_layout = QHBoxLayout()
+        count_label = QLabel("Packet Count:", dialog)
+        count_input = QLineEdit(dialog)
+        count_layout.addWidget(count_label)
+        count_layout.addWidget(count_input)
+        layout.addLayout(count_layout)
+
+        filter_layout = QHBoxLayout()
+        filter_label = QLabel("Filter Expression:", dialog)
+        filter_input = QLineEdit(dialog)
+        filter_layout.addWidget(filter_label)
+        filter_layout.addWidget(filter_input)
+        layout.addLayout(filter_layout)
+
+        output_area = QTextEdit(dialog)
+        output_area.setReadOnly(True)
+        layout.addWidget(output_area)
+
+        def generate_command_tcpdump():
+            interface = interface_input.text()
+            packet_count = count_input.text()
+            filter_expression = filter_input.text()
+
+            command = f"tcpdump -i {interface}"
+            if packet_count:
+                command += f" -c {packet_count}"
+            if filter_expression:
+                command += f" {filter_expression}"
+
+            output_area.setText(command)
+            return command
+
+        def run_tcpdump():
+            command = generate_command_tcpdump()
+            if command:
+                answer = QMessageBox.question(dialog, "Run TcpDump", "Do you want to run TcpDump? (Y/N)", QMessageBox.Yes | QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    result = subprocess.getoutput(command)
+                    output_area.append("\n" + result)
+
+        generate_button = QPushButton("Generate Command", dialog)
+        generate_button.clicked.connect(generate_command_tcpdump)
+        layout.addWidget(generate_button)
+
+        start_button = QPushButton("Start TcpDump", dialog)
+        start_button.clicked.connect(run_tcpdump)
+        layout.addWidget(start_button)
+
+        dialog.exec_()
+
 def main():
-    background()
     time.sleep(1.1)
     app = QApplication(sys.argv)
     window = Window()
-    window.showMaximized()
+    window.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

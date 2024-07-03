@@ -17,7 +17,10 @@ import urllib3
 from  urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import warnings
-import googlesearch
+import tkinter as tk
+from tkinter import scrolledtext
+from googlesearch import search
+import webbrowser
 import pyuac
 
 def background():
@@ -1077,84 +1080,65 @@ class Window(QMainWindow):
         searchsploit_dialog.exec_()
 
     def show_osint_options(self):
-        main_widget = QWidget()
-        self.setCentralWidget(main_widget)
-        main_layout = QVBoxLayout()
-        main_widget.setLayout(main_layout)
+        def perform_search():
+            query = entry.get()
+            results_text.delete(1.0, tk.END) 
+            results_text.insert(tk.END, f"Searching for: {query}\n\n")
+            
+            try:
+                num_results = int(count_entry.get())
+                links = list(search(query, num_results=num_results))
+                
+                actual_num_results = len(links)
+                if actual_num_results > 0:
+                    results_text.insert(tk.END, f"Showing {min(num_results, actual_num_results)} out of {actual_num_results} results:\n\n")
+                    for idx, link in enumerate(links):
+                        if idx < num_results:
+                            insert_link(link)
+                else:
+                    results_text.insert(tk.END, "No results found.\n")
+                    
+            except ValueError:
+                results_text.insert(tk.END, "Please enter a valid number for the number of results.\n")
+            except Exception as e:
+                results_text.insert(tk.END, f"Error occurred: {e}")
 
-        bold_font = QFont("Helvetica", 10, QFont.Bold)
+        def insert_link(link):
+            display_text = f"[+] Result: {link}\n"
+            results_text.insert(tk.END, display_text)
+            start_index = results_text.index(tk.END + f"-{len(display_text)}c")
+            end_index = results_text.index(tk.END + "-1c")
+            results_text.tag_add(link, start_index, end_index)
+            results_text.tag_bind(link, "<Button-1>", lambda e, link=link: open_link(link))
+            results_text.tag_config(link, foreground="blue", underline=True)
 
-        # Search query input
-        entry_label = QLabel("Enter your search query:")
-        entry_label.setFont(bold_font)
-        main_layout.addWidget(entry_label)
+        def open_link(link):
+            webbrowser.open(link)
 
-        self.entry = QLineEdit()
-        main_layout.addWidget(self.entry)
+        root = tk.Tk()
+        root.title("Raulisr00t OSINT-Tool")
 
-        # Number of results input
-        count_label = QLabel("How many results do you want to see:")
-        count_label.setFont(bold_font)
-        main_layout.addWidget(count_label)
+        bold_font = ("Helvetica", 10, "bold")
 
-        self.count_entry = QLineEdit()
-        main_layout.addWidget(self.count_entry)
+        entry_label = tk.Label(root, text="Enter your search query:", font=bold_font)
+        entry_label.pack(pady=15, padx=30)
 
-        # Search button
-        search_button = QPushButton("Search")
-        search_button.clicked.connect(self.perform_search)
-        main_layout.addWidget(search_button)
+        entry = tk.Entry(root, width=80)
+        entry.pack(pady=5)
 
-        # Results display area
-        results_label = QLabel("Search Results:")
-        results_label.setFont(bold_font)
-        main_layout.addWidget(results_label)
+        count_label = tk.Label(root, text="How many results do you want to see:", font=bold_font)
+        count_label.pack(pady=15, padx=30)
 
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        self.results_text.setLineWrapMode(QTextEdit.NoWrap)
-        self.results_text.setFontPointSize(10)
-        main_layout.addWidget(self.results_text)
+        count_entry = tk.Entry(root, width=10)
+        count_entry.pack(pady=5)
 
-    def perform_search(self):
-        query = self.entry.text().strip()
-        num_results_str = self.count_entry.text().strip()
-        self.results_text.clear()
+        search_button = tk.Button(root, text="Search", command=perform_search)
+        search_button.pack(pady=15, padx=10)
 
-        try:
-            num_results = int(num_results_str)
-            if num_results <= 0:
-                raise ValueError("Number of results must be greater than zero.")
+        results_text = scrolledtext.ScrolledText(root, width=100, height=20, bg="lightblue") 
+        results_text.pack(pady=10)
 
-            # Replace list(query, num_results=num_results) with actual search logic
-            # For example, if you have a function that searches and returns links:
-            links = self.search_and_return_links(query, num_results)
-
-            actual_num_results = len(links)
-            if actual_num_results > 0:
-                self.results_text.append(f"Showing {min(num_results, actual_num_results)} out of {actual_num_results} results:\n")
-                for idx, link in enumerate(links[:num_results]):
-                    self.insert_link(link)
-            else:
-                self.results_text.append("No results found.\n")
-
-        except ValueError as e:
-            self.results_text.append(f"Error: {e}")
-        except Exception as e:
-            self.results_text.append(f"Error occurred: {e}")
-
-    def insert_link(self, link):
-        display_text = f"[+] Result: {link}\n"
-        self.results_text.moveCursor(QTextCursor.End)
-        self.results_text.insertPlainText(display_text)
-        cursor = self.results_text.textCursor()
-        cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.MoveAnchor, len(display_text))
-        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
-        self.results_text.setTextCursor(cursor)
-        self.results_text.setTextColor(Qt.blue)
-        self.results_text.setUnderlineColor(Qt.blue)
-        self.results_text.setOpenExternalLinks(True)
-        self.results_text.setHtml(f'<a href="{link}">{display_text}</a>')
+        root.mainloop()
 
     def show_ftp_options(self):
         ftp_dialog = QDialog(self)

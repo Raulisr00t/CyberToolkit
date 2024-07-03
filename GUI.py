@@ -305,11 +305,13 @@ class Window(QMainWindow):
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.TurnBack)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.TurnBacButton = QtWidgets.QPushButton(self.TurnBack)
+
         font = QtGui.QFont()
         font.setPointSize(8)
         self.TurnBacButton.setFont(font)
         self.TurnBacButton.setStyleSheet("padding: 5px 10px;")
         self.TurnBacButton.setText("")
+
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./img/turn-back.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TurnBacButton.setIcon(icon)
@@ -320,6 +322,7 @@ class Window(QMainWindow):
         self.horizontalLayout.addWidget(self.TurnBack, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addWidget(self.navbar, 0, QtCore.Qt.AlignTop)
         self.Body = QtWidgets.QWidget(tool_widget)
+        
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -373,9 +376,6 @@ class Window(QMainWindow):
 
     def return_to_choice(self):
         self.stacked_widget.setCurrentIndex(0)
-
-    
-
 
 
     def create_handler(self, label_text):

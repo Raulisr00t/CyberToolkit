@@ -550,14 +550,18 @@ class Window(QMainWindow):
 
                 return command
 
-            def run_command():
-                command = generate_command()
+            def run_command(self):
+                command = "reg query HKLM\Software"
+                run_as_admin = True  # For testing, assuming admin rights are required
+
                 if command:
                     if run_as_admin:
-                        # Split the command into a list of arguments
                         command_list = command.split()
-                        print(command_list)
-                        pyuac.runAsAdmin(command_list)
+                        result = pyuac.runAsAdmin(command_list)
+                        if isinstance(result, int):
+                            output_area.append(f"\nCommand failed with status code: {result}")
+                        else:
+                            output_area.append("\n" + result)
                     else:
                         result = subprocess.getoutput(command)
                         output_area.append("\n" + result)
@@ -1120,7 +1124,7 @@ class Window(QMainWindow):
             webbrowser.open(link)
 
         root = tk.Tk()
-        root.title("Raulisr00t OSINT-Tool")
+        root.title("OSINT-Tool")
 
         bold_font = ("Helvetica", 10, "bold")
 

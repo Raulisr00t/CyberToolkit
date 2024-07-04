@@ -102,7 +102,7 @@ class Window(QMainWindow):
             ["Nmap", "Hydra", "Gobuster"],
             ["CrackMapExec", "Enum4linux", "Searchsploit"],
             ["Msfvenom", "Curl", "Nikto"],
-            ["(Coming Soon)", "(Coming Soon)", "Coming Soon"]
+            ["(Coming Soon)", "(Coming Soon)", "(Coming Soon)"]
         ]
 
         self.blue_team_tools = [

@@ -102,13 +102,13 @@ class Window(QMainWindow):
             ["Nmap", "Hydra", "Gobuster"],
             ["CrackMapExec", "Enum4linux", "Searchsploit"],
             ["Msfvenom", "Curl", "Nikto"],
-            ["(Coming Soon)", "Sherloc", "(Coming Soon)"]
+            ["(Coming Soon)", "Sherloc", "Osintagram"]
         ]
 
         self.blue_team_tools = [
-            ["Snort", "(Coming Soon)", "Zeek"],
+            ["Snort", "Winlog (Coming Soon)", "Zeek"],
             ["Dcfldd", "TcpDump", "Registry Editor"],
-            ["(Coming Soon)", "(Coming Soon)","(Coming Soon)"]
+            ["(Coming Soon)", "(Coming Soon)"]
         ]
 
         self.general_team_tools = [
@@ -154,6 +154,44 @@ class Window(QMainWindow):
 "}")
         self.verticalLayout = QtWidgets.QVBoxLayout(Main)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.NameWidget = QtWidgets.QWidget(Main)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.NameWidget.sizePolicy().hasHeightForWidth())
+        self.NameWidget.setSizePolicy(sizePolicy)
+        self.NameWidget.setMinimumSize(QtCore.QSize(0, 0))
+        self.NameWidget.setMaximumSize(QtCore.QSize(1660000, 100))
+        self.NameWidget.setObjectName("NameWidget")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.NameWidget)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.label_2 = QtWidgets.QLabel(self.NameWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy)
+        self.label_2.setMinimumSize(QtCore.QSize(40, 40))
+        self.label_2.setMaximumSize(QtCore.QSize(40, 40))
+        self.label_2.setStyleSheet("")
+        self.label_2.setText("")
+        self.label_2.setPixmap(QtGui.QPixmap("./img/toolkit.jpg"))
+        self.label_2.setScaledContents(True)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_4.addWidget(self.label_2)
+        self.ToolName = QtWidgets.QLabel("PolyKit",self.NameWidget)
+        font = QtGui.QFont()
+        font.setFamily("Ink Free")
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.ToolName.setFont(font)
+        self.ToolName.setStyleSheet("color: #19830d;")
+        self.ToolName.setObjectName("ToolName")
+        self.horizontalLayout_4.addWidget(self.ToolName, 0, QtCore.Qt.AlignLeft)
+        self.verticalLayout.addWidget(self.NameWidget, 0, QtCore.Qt.AlignTop)
+        self.set_circular_image("./img/toolkit.jpg", self.label_2)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
         self.Mid = QtWidgets.QWidget(Main)
@@ -252,6 +290,7 @@ class Window(QMainWindow):
         self.Help_Button.setIcon(icon3)
         self.Help_Button.setIconSize(QtCore.QSize(48, 48))
         self.Help_Button.setObjectName("Help_Button")
+        self.Help_Button.clicked.connect(self.show_help)
         self.verticalLayout_4.addWidget(self.Help_Button)
         self.horizontalLayout_3.addWidget(self.widget_2)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -259,7 +298,62 @@ class Window(QMainWindow):
         self.verticalLayout.addWidget(self.bottom, 0, QtCore.Qt.AlignBottom)
         self.stacked_widget.addWidget(Main)
         self.stacked_widget.setCurrentWidget(Main)
+    
+    
+    def show_help(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Help")
+        dialog.setGeometry(100, 100, 600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        help_text = """
+        Welcome to the Tool Helper!
         
+        This application provides various tools for Red Team and Blue Team activities.
+        
+        - Red Team Tools: Use these tools to simulate attacks and vulnerabilities.
+        - Blue Team Tools: Use these tools to defend and protect against attacks.
+        - General Tools: Use these tools for general network and system activities.
+        
+        To use a tool, click on its button and follow the instructions provided.
+        
+        If you need further assistance, please refer to the documentation or contact support.
+        """
+
+        help_label = QTextBrowser(dialog)
+        help_label.setText(help_text)
+        layout.addWidget(help_label)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+    
+    
+    def set_circular_image(self, image_path, label):
+        pixmap = QtGui.QPixmap(image_path)
+        size = min(label.width(), label.height())
+        if size == 0:
+            return
+
+        # Scale the pixmap to fit the label size
+        scaled_pixmap = pixmap.scaled(size, size, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
+
+        # Create a circular mask
+        circular_image = QtGui.QImage(size, size, QtGui.QImage.Format_ARGB32)
+        circular_image.fill(QtCore.Qt.transparent)
+
+        painter = QtGui.QPainter(circular_image)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setBrush(QtGui.QBrush(scaled_pixmap))
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.drawEllipse(0, 0, size, size)
+        painter.end()
+
+        # Convert QImage back to QPixmap
+        circular_pixmap = QtGui.QPixmap.fromImage(circular_image)
+
+        # Set the pixmap to the label
+        label.setPixmap(circular_pixmap)
 
 
     def show_red_team_tools(self):
@@ -305,13 +399,11 @@ class Window(QMainWindow):
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.TurnBack)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.TurnBacButton = QtWidgets.QPushButton(self.TurnBack)
-
         font = QtGui.QFont()
         font.setPointSize(8)
         self.TurnBacButton.setFont(font)
         self.TurnBacButton.setStyleSheet("padding: 5px 10px;")
         self.TurnBacButton.setText("")
-
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./img/turn-back.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.TurnBacButton.setIcon(icon)
@@ -322,7 +414,6 @@ class Window(QMainWindow):
         self.horizontalLayout.addWidget(self.TurnBack, 0, QtCore.Qt.AlignRight)
         self.verticalLayout.addWidget(self.navbar, 0, QtCore.Qt.AlignTop)
         self.Body = QtWidgets.QWidget(tool_widget)
-
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -376,6 +467,10 @@ class Window(QMainWindow):
 
     def return_to_choice(self):
         self.stacked_widget.setCurrentIndex(0)
+
+    
+
+
 
     def create_handler(self, label_text):
         def handler(event):

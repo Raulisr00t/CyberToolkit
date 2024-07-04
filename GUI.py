@@ -92,7 +92,7 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("CAPSTONE Project--GROUP D")
+        self.setWindowTitle("CAPSTONE Project")
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
